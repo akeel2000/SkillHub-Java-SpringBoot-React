@@ -3,7 +3,9 @@ package com.skillshare.backend.api;
 import com.skillshare.backend.model.User;
 import com.skillshare.backend.repository.UserRepository;
 import com.skillshare.backend.security.JwtUtil;
-import lombok.Data;
+import com.skillshare.backend.requests.LoginRequest;
+import com.skillshare.backend.requests.RegisterRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,6 +14,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -62,7 +67,7 @@ public class AuthController {
         if (lastName != null) user.setLastName(lastName);
 
         String folderPath = System.getProperty("user.dir") + "/images/";
-        new File(folderPath).mkdirs(); // Ensure folder exists
+        new File(folderPath).mkdirs();
 
         try {
             if (profilePic != null && !profilePic.isEmpty()) {
@@ -94,22 +99,34 @@ public class AuthController {
 
         userRepo.delete(user);
 
-        // Delete profile and cover images
         String folderPath = System.getProperty("user.dir") + "/images/";
-        File profile = new File(folderPath + "profile_" + user.getId() + ".jpg");
-        File cover = new File(folderPath + "cover_" + user.getId() + ".jpg");
-        profile.delete();
-        cover.delete();
+        new File(folderPath + "profile_" + user.getId() + ".jpg").delete();
+        new File(folderPath + "cover_" + user.getId() + ".jpg").delete();
 
         return ResponseEntity.ok("User deleted");
     }
-}
 
-// Request payloads
-@Data class RegisterRequest {
-    private String name, lastName, email, password;
-}
+    @PostMapping("/categories")
+    public ResponseEntity<?> saveCategories(@RequestParam String email, @RequestBody List<String> categories) {
+        User user = userRepo.findByEmail(email);
+        if (user == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        user.setCategories(categories);
+        userRepo.save(user);
+        return ResponseEntity.ok("Categories updated");
+    }
 
-@Data class LoginRequest {
-    private String email, password;
+    @GetMapping("/user")
+    public ResponseEntity<?> getUser(@RequestParam String email) {
+        User user = userRepo.findByEmail(email);
+        if (user == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        return ResponseEntity.ok(user);
+    }
+
+    @GetMapping("/public-profile/{id}")
+    public ResponseEntity<?> getUserById(@PathVariable String id) {
+        return userRepo.findById(id)
+            .map((User user) -> ResponseEntity.ok((Object) user)) // ✅ explicitly cast to Object
+            .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found"));
+    }
+    
 }
