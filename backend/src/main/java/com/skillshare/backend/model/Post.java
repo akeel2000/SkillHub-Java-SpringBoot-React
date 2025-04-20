@@ -1,25 +1,21 @@
 package com.skillshare.backend.model;
 
 import lombok.*;
-
-import java.util.List;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.Date;
 
 @Document
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class Post {
     @Id
     private String id;
-    private String name;
-    private String lastName;
-    private String email;
-    private String password;
-    private String profilePic;
-    private String coverPic;
-    private List<String> categories; 
-
+    private String userId;
+    private String content;
+    private String mediaUrl;   // Path to image/video
+    private String mediaType;  // "image" or "video"
+    private Date createdAt;
 }
