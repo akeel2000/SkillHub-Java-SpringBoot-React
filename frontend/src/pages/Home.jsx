@@ -78,30 +78,15 @@ const Home = () => {
     fetchStories();
   }, []);
 
-  if (!user) return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
-      <div className="animate-pulse text-cyan-400 text-xl">Loading Profile...</div>
-    </div>
-  );
+  if (!user)
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+        <div className="animate-pulse text-cyan-400 text-xl">Loading Profile...</div>
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 relative overflow-hidden">
-      {/* Floating Background Elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        {[...Array(8)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-16 h-16 border-4 border-opacity-10 border-cyan-300 rounded-full"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animation: `float ${10 + i * 2}s infinite linear`,
-              transform: `scale(${0.5 + Math.random() * 1.5})`,
-            }}
-          />
-        ))}
-      </div>
-
       <Header user={user} />
 
       <div className="p-6 max-w-6xl mx-auto">
@@ -112,11 +97,18 @@ const Home = () => {
           </h2>
           <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
             {stories.map((story, index) => (
-              <div 
-                key={index} 
-                className="w-32 h-48 bg-gradient-to-br from-purple-800/50 to-blue-800/50 backdrop-blur-sm rounded-2xl p-1 border border-cyan-300/20 shadow-2xl transform transition-all duration-300 hover:scale-105 flex-shrink-0"
+              <div
+                key={index}
+                className="w-32 h-56 flex flex-col items-center text-center bg-gradient-to-br from-purple-800/50 to-blue-800/50 backdrop-blur-sm rounded-2xl p-1 border border-cyan-300/20 shadow-2xl transform transition-all duration-300 hover:scale-105 flex-shrink-0"
+                onClick={async () => {
+                  const viewerId = localStorage.getItem("userId");
+                  await fetch(`http://localhost:8080/api/stories/view/${story.id}?viewerId=${viewerId}`, {
+                    method: "PUT",
+                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+                  });
+                }}
               >
-                <div className="relative h-full rounded-xl overflow-hidden group">
+                <div className="relative h-40 w-full rounded-xl overflow-hidden group">
                   {story.mediaUrl ? (
                     <img
                       src={`http://localhost:8080${story.mediaUrl}`}
@@ -128,17 +120,56 @@ const Home = () => {
                       {story.text}
                     </div>
                   )}
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
-                    <p className="text-xs text-cyan-300 font-medium">
-                      {story.viewedBy?.length || 0} views
-                    </p>
-                  </div>
                 </div>
+                <div className="flex flex-col items-center mt-2">
+                  {story.userProfilePic && (
+                    <img
+                      src={`http://localhost:8080${story.userProfilePic}`}
+                      alt="User"
+                      className="w-8 h-8 rounded-full border-2 border-white shadow-md object-cover"
+                    />
+                  )}
+                  <p className="text-xs text-cyan-300 font-medium mt-1 truncate w-full">
+                    {story.userName}
+                  </p>
+                  <p className="text-xs text-cyan-400 mt-1">{story.viewedBy?.length || 0} views</p>
+                </div>
+                {story.userId === user.id && (
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      onClick={async () => {
+                        const newText = prompt("Update your story:", story.text);
+                        if (newText) {
+                          await fetch(`http://localhost:8080/api/stories/${story.id}`, {
+                            method: "PUT",
+                            headers: {
+                              "Content-Type": "application/json",
+                              Authorization: `Bearer ${localStorage.getItem("token")}`,
+                            },
+                            body: JSON.stringify({ text: newText }),
+                          });
+                          window.location.reload();
+                        }
+                      }}
+                      className="text-yellow-400 text-xs"
+                    >Edit</button>
+                    <button
+                      onClick={async () => {
+                        await fetch(`http://localhost:8080/api/stories/${story.id}?userId=${user.id}`, {
+                          method: "DELETE",
+                          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+                        });
+                        window.location.reload();
+                      }}
+                      className="text-red-400 text-xs"
+                    >Delete</button>
+                  </div>
+                )}
               </div>
             ))}
             <button
               onClick={() => navigate("/add-story")}
-              className="w-32 h-48 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 backdrop-blur-sm rounded-2xl border-2 border-dashed border-cyan-300/30 flex items-center justify-center text-cyan-400 hover:text-cyan-300 transition-all transform hover:scale-105 flex-shrink-0"
+              className="w-32 h-56 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 backdrop-blur-sm rounded-2xl border-2 border-dashed border-cyan-300/30 flex items-center justify-center text-cyan-400 hover:text-cyan-300 transition-all transform hover:scale-105 flex-shrink-0"
             >
               <div className="text-4xl bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
                 +
@@ -155,8 +186,8 @@ const Home = () => {
           <div className="space-y-6">
             {posts.length > 0 ? (
               posts.map((post) => (
-                <PostCard 
-                  key={post.id} 
+                <PostCard
+                  key={post.id}
                   post={post}
                   className="bg-gradient-to-br from-purple-800/50 to-blue-800/50 backdrop-blur-sm rounded-2xl border border-cyan-300/20 shadow-2xl transform transition-all hover:scale-[1.01] hover:shadow-3xl"
                 />

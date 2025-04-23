@@ -1,7 +1,9 @@
 package com.skillshare.backend.api;
 
 import com.skillshare.backend.model.Story;
+import com.skillshare.backend.model.User;
 import com.skillshare.backend.repository.StoryRepository;
+import com.skillshare.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +23,10 @@ public class StoryController {
     @Autowired
     private StoryRepository storyRepo;
 
-    // ✅ Upload a new story with logging and error handling
+    @Autowired
+    private UserRepository userRepo;
+
+    // Upload a new story with logging and error handling
     @PostMapping
     public ResponseEntity<?> uploadStory(
             @RequestParam String email,
@@ -30,7 +35,6 @@ public class StoryController {
             @RequestParam(required = false) String text
     ) {
         try {
-            // ✅ Debug logs
             System.out.println("=== ADD STORY DEBUG ===");
             System.out.println("Email: " + email);
             System.out.println("UserId: " + userId);
@@ -42,16 +46,13 @@ public class StoryController {
             if (media != null && !media.isEmpty()) {
                 String fileName = UUID.randomUUID() + "_" + media.getOriginalFilename();
                 String uploadPath = System.getProperty("user.dir") + "/uploads/";
-                System.out.println("Upload path: " + uploadPath); // ✅ Log path
-
                 new File(uploadPath).mkdirs();
                 File file = new File(uploadPath + fileName);
-
                 try {
                     media.transferTo(file);
                     mediaPath = "/uploads/" + fileName;
                 } catch (IOException e) {
-                    e.printStackTrace(); // ✅ Log exception
+                    e.printStackTrace();
                     return ResponseEntity.status(500).body("Media upload failed: " + e.getMessage());
                 }
             }
@@ -62,6 +63,13 @@ public class StoryController {
             story.setText(text);
             story.setMediaUrl(mediaPath);
 
+            // Set user profile data in story
+            User user = userRepo.findById(userId).orElse(null);
+            if (user != null) {
+                story.setUserName(user.getName() + " " + user.getLastName());
+                story.setUserProfilePic(user.getProfilePic());
+            }
+
             return ResponseEntity.ok(storyRepo.save(story));
 
         } catch (Exception e) {
@@ -70,34 +78,25 @@ public class StoryController {
         }
     }
 
-    // ✅ Get all stories sorted by creation time (latest first)
     @GetMapping
     public ResponseEntity<?> getAllStories() {
         return ResponseEntity.ok(storyRepo.findAll(Sort.by(Sort.Direction.DESC, "createdAt")));
     }
 
-    // ✅ Register a story view by viewer
     @PutMapping("/view/{storyId}")
     public ResponseEntity<?> viewStory(@PathVariable String storyId, @RequestParam String viewerId) {
         Optional<Story> optional = storyRepo.findById(storyId);
-        if (optional.isEmpty()) {
-            return ResponseEntity.status(404).body("Story not found");
-        }
+        if (optional.isEmpty()) return ResponseEntity.status(404).body("Story not found");
 
         Story story = optional.get();
-        if (story.getViewedBy() == null) {
-            story.setViewedBy(new java.util.ArrayList<>());
-        }
-
         if (!story.getViewedBy().contains(viewerId)) {
             story.getViewedBy().add(viewerId);
-            storyRepo.save(story);
+            return ResponseEntity.ok(storyRepo.save(story));
         }
 
-        return ResponseEntity.ok("View registered");
+        return ResponseEntity.ok(story);
     }
 
-    // ✅ Update story text
     @PutMapping("/{id}")
     public ResponseEntity<?> updateStory(@PathVariable String id, @RequestBody Story updated) {
         Optional<Story> optionalStory = storyRepo.findById(id);
@@ -110,7 +109,6 @@ public class StoryController {
         }
     }
 
-    // ✅ Delete story if it belongs to the user
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteStory(@PathVariable String id, @RequestParam String userId) {
         Optional<Story> optionalStory = storyRepo.findById(id);
@@ -126,7 +124,6 @@ public class StoryController {
         }
     }
 
-    // ✅ Get story viewers
     @GetMapping("/{id}/viewers")
     public ResponseEntity<?> getStoryViewers(@PathVariable String id) {
         Optional<Story> optionalStory = storyRepo.findById(id);
