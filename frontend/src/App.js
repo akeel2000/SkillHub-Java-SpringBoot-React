@@ -1,10 +1,9 @@
-import React, { useEffect } from "react";
+import React from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Navigate,
-  useNavigate,
+  Navigate
 } from "react-router-dom";
 
 import SplashScreen from "./pages/SplashScreen";
@@ -15,40 +14,31 @@ import CategorySelect from "./pages/CategorySelect";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import UpdateProfile from "./pages/UpdateProfile";
+import AddStory from "./pages/AddStory";
 
-
-// ✅ Captures token from URL after Google OAuth login
-function TokenHandler() {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get("token");
-
-    if (token) {
-      localStorage.setItem("token", token);
-      navigate("/home");
-    }
-  }, [navigate]);
-
-  return null;
-}
+import ProtectedRoute from "./components/ProtectedRoute";
+import PublicOnlyRoute from "./components/PublicOnlyRoute"; // ✅ New import
 
 export default function App() {
   return (
     <Router>
-      <TokenHandler />
       <Routes>
         <Route path="/" element={<SplashScreen />} />
         <Route path="/onboarding" element={<Onboarding />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/categories" element={<CategorySelect />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="*" element={<Navigate to="/" />} />
-        <Route path="/update-profile" element={<UpdateProfile />} />
 
+        {/* 🆕 Public-only Routes */}
+        <Route path="/login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
+        <Route path="/signup" element={<PublicOnlyRoute><Signup /></PublicOnlyRoute>} />
+
+        <Route path="/categories" element={<CategorySelect />} />
+
+        {/* ✅ Protected Routes */}
+        <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/update-profile" element={<ProtectedRoute><UpdateProfile /></ProtectedRoute>} />
+        <Route path="/add-story" element={<ProtectedRoute><AddStory /></ProtectedRoute>} />
+
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
   );

@@ -16,10 +16,13 @@ public class WebConfig implements WebMvcConfigurer {
             .allowCredentials(true);
     }
 
-    // ✅ Serve /images/** from your file system folder (backend/images/)
+    // ✅ Serve /images/** and /uploads/** from the file system
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/images/**")
                 .addResourceLocations("file:" + System.getProperty("user.dir") + "/images/");
+
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:" + System.getProperty("user.dir") + "/uploads/");
     }
 }
