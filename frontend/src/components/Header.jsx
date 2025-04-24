@@ -78,6 +78,15 @@ const Header = ({ user }) => {
             <span className="relative z-10">Friends</span>
             <div className="absolute inset-0 bg-cyan-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" />
           </button>
+
+          <button
+  onClick={() => navigate("/learning-plans")}  // This should work if the route is set correctly
+  className="text-cyan-300 hover:text-cyan-100 px-4 py-2 rounded-xl hover:bg-cyan-500/10 transition-all group relative"
+>
+  <span className="relative z-10">My Plans</span>
+  <div className="absolute inset-0 bg-cyan-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+</button>
+
         </div>
 
         {/* 🔍 Search */}
