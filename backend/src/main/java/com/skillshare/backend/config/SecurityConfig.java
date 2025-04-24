@@ -43,7 +43,8 @@ public class SecurityConfig {
                     "/api/auth/**",
                     "/oauth2/**",
                     "/images/**",
-                    "/uploads/**"
+                    "/uploads/**",
+                    "/media/**" // ✅ Allow public access to media files
                 ).permitAll()
                 .anyRequest().authenticated()
             )
@@ -51,7 +52,7 @@ public class SecurityConfig {
                 .defaultSuccessUrl("http://localhost:3000", true)
             );
 
-        // ✅ Attach JwtFilter to validate tokens
+        // ✅ Attach JwtFilter
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

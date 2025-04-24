@@ -15,9 +15,12 @@ import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import UpdateProfile from "./pages/UpdateProfile";
 import AddStory from "./pages/AddStory";
+import PublicProfile from "./pages/PublicProfile"; // ✅ Import public profile
 
 import ProtectedRoute from "./components/ProtectedRoute";
-import PublicOnlyRoute from "./components/PublicOnlyRoute"; // ✅ New import
+import PublicOnlyRoute from "./components/PublicOnlyRoute";
+import AccountSettings from "./pages/AccountSettings";
+
 
 export default function App() {
   return (
@@ -37,7 +40,12 @@ export default function App() {
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/update-profile" element={<ProtectedRoute><UpdateProfile /></ProtectedRoute>} />
         <Route path="/add-story" element={<ProtectedRoute><AddStory /></ProtectedRoute>} />
+        <Route path="/settings" element={<ProtectedRoute><AccountSettings /></ProtectedRoute>} />
 
+        {/* ✅ New: Public profile route */}
+        <Route path="/public-profile/:id" element={<ProtectedRoute><PublicProfile /></ProtectedRoute>} />
+
+        {/* Fallback */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>

@@ -98,16 +98,42 @@ public class StoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateStory(@PathVariable String id, @RequestBody Story updated) {
-        Optional<Story> optionalStory = storyRepo.findById(id);
-        if (optionalStory.isPresent()) {
-            Story story = optionalStory.get();
-            story.setText(updated.getText());
-            return ResponseEntity.ok(storyRepo.save(story));
-        } else {
-            return ResponseEntity.status(404).body("Story not found");
+public ResponseEntity<?> updateStory(
+        @PathVariable String id,
+        @RequestParam("userId") String userId,
+        @RequestParam("text") String text,
+        @RequestPart(value = "media", required = false) MultipartFile media
+) {
+    Optional<Story> optionalStory = storyRepo.findById(id);
+    if (optionalStory.isEmpty()) {
+        return ResponseEntity.status(404).body("Story not found");
+    }
+
+    Story story = optionalStory.get();
+    if (!story.getUserId().equals(userId)) {
+        return ResponseEntity.status(403).body("Unauthorized");
+    }
+
+    story.setText(text);
+
+    if (media != null && !media.isEmpty()) {
+        String uploadDir = System.getProperty("user.dir") + "/uploads/";
+        new File(uploadDir).mkdirs();
+        String filename = "story_" + id + "_" + media.getOriginalFilename();
+        File file = new File(uploadDir + filename);
+        try {
+            media.transferTo(file);
+            story.setMediaUrl("/uploads/" + filename);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Media upload failed: " + e.getMessage());
         }
     }
+
+    storyRepo.save(story);
+    return ResponseEntity.ok(story);
+}
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteStory(@PathVariable String id, @RequestParam String userId) {

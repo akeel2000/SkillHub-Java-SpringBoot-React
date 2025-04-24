@@ -72,6 +72,15 @@ const UpdateProfile = () => {
       {/* Main Content */}
       <div className="relative z-10 flex items-center justify-center min-h-screen p-6">
         <div className="bg-gradient-to-br from-purple-800/50 to-blue-800/50 backdrop-blur-xl border border-cyan-300/20 rounded-3xl shadow-2xl w-full max-w-lg p-8 animate-fadeInUp">
+          {/* Close Button */}
+          <button
+            onClick={() => navigate('/profile')}
+            className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full border-2 border-cyan-300/20 text-cyan-300 hover:border-cyan-400 hover:text-cyan-400 hover:bg-cyan-400/10 transition-all"
+            aria-label="Close"
+          >
+            ×
+          </button>
+
           <h2 className="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
             Update Profile
           </h2>
