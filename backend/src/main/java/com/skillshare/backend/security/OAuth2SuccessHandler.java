@@ -39,11 +39,12 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             user.setEmail(email);
             user.setName(name);
             user.setLastName("GoogleUser");
-            user.setPassword(""); // Google account - no password
+            user.setPassword(""); // Google OAuth user
             userRepo.save(user);
         }
 
-        String jwt = jwtUtil.generateToken(email, 1, name);
-        response.sendRedirect("http://localhost:3000?token=" + jwt); // frontend redirect with JWT
+        String jwt = jwtUtil.generateToken(email, user.getTokenVersion());
+        response.sendRedirect("http://localhost:3000?token=" + jwt); // redirect to frontend with token
     }
 }
+
