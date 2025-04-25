@@ -29,8 +29,9 @@ const Header = ({ user }) => {
 
   return (
     <div className="bg-gradient-to-br from-purple-800/50 to-blue-800/50 backdrop-blur-xl border-b border-cyan-300/20 px-6 py-3 flex justify-between items-center fixed w-full top-0 z-50 shadow-2xl">
-      {/* Floating Background Elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+      
+      {/* Floating Background */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
         {[...Array(4)].map((_, i) => (
           <div
             key={i}
@@ -48,48 +49,34 @@ const Header = ({ user }) => {
       {/* Logo */}
       <h1
         className="text-2xl font-extrabold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent cursor-pointer hover:scale-105 transition-transform"
-        onClick={() => navigate("/home")}
+        onClick={() => navigate("/dashboard")}
       >
         SkillHub
       </h1>
 
-      {/* Navigation + Search */}
+      {/* Navigation Links */}
       <div className="flex items-center space-x-6 relative">
-        {/* Navigation Links */}
         <div className="hidden md:flex space-x-4">
-          <button 
-            onClick={() => navigate("/home")}
-            className="text-cyan-300 hover:text-cyan-100 px-4 py-2 rounded-xl hover:bg-cyan-500/10 transition-all group relative"
-          >
-            <span className="relative z-10">Home</span>
-            <div className="absolute inset-0 bg-cyan-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-          </button>
-          <button 
-            onClick={() => navigate("/notifications")}
-            className="text-cyan-300 hover:text-cyan-100 px-4 py-2 rounded-xl hover:bg-cyan-500/10 transition-all group relative"
-          >
-            <span className="relative z-10">Notifications</span>
-            <div className="absolute inset-0 bg-cyan-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-          </button>
-          <button 
-            onClick={() => navigate("/friends")}
-            className="text-cyan-300 hover:text-cyan-100 px-4 py-2 rounded-xl hover:bg-cyan-500/10 transition-all group relative"
-          >
-            <span className="relative z-10">Friends</span>
-            <div className="absolute inset-0 bg-cyan-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-          </button>
-
-          <button
-  onClick={() => navigate("/learning-plans")}  // This should work if the route is set correctly
-  className="text-cyan-300 hover:text-cyan-100 px-4 py-2 rounded-xl hover:bg-cyan-500/10 transition-all group relative"
->
-  <span className="relative z-10">My Plans</span>
-  <div className="absolute inset-0 bg-cyan-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-</button>
-
+          {[
+            { label: "Dashboard", route: "/dashboard" },
+            { label: "Home", route: "/home" },
+            { label: "Explore", route: "/explore-plans" },
+            { label: "Notifications", route: "/notifications" },
+            { label: "Friends", route: "/friends" },
+            { label: "My Plans", route: "/learning-plans" }
+          ].map((item, idx) => (
+            <button
+              key={idx}
+              onClick={() => navigate(item.route)}
+              className="text-cyan-300 hover:text-cyan-100 px-4 py-2 rounded-xl hover:bg-cyan-500/10 transition-all group relative"
+            >
+              <span className="relative z-10">{item.label}</span>
+              <div className="absolute inset-0 bg-cyan-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+            </button>
+          ))}
         </div>
 
-        {/* 🔍 Search */}
+        {/* Search Bar */}
         <div className="relative search-box">
           <div className="flex items-center bg-purple-900/30 backdrop-blur-sm rounded-xl border-2 border-cyan-300/20 hover:border-cyan-400/40 transition-all">
             <input
@@ -101,18 +88,8 @@ const Header = ({ user }) => {
               placeholder="Search users..."
               className="px-4 py-2 bg-transparent text-cyan-100 placeholder-cyan-300/50 focus:outline-none w-48 md:w-64 rounded-xl"
             />
-            <svg 
-              className="w-5 h-5 mr-3 text-cyan-300" 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-            >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth="2" 
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
+            <svg className="w-5 h-5 mr-3 text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
 
@@ -131,8 +108,8 @@ const Header = ({ user }) => {
                       alt={u.name}
                       className="w-8 h-8 rounded-full border-2 border-cyan-300/50 relative z-10"
                       onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.parentElement.classList.add('bg-gradient-to-br', 'from-cyan-500', 'to-purple-600');
+                        e.target.style.display = "none";
+                        e.target.parentElement.classList.add("bg-gradient-to-br", "from-cyan-500", "to-purple-600");
                       }}
                     />
                   </div>
@@ -158,7 +135,7 @@ const Header = ({ user }) => {
                 alt="Profile"
                 className="w-10 h-10 rounded-full border-2 border-cyan-300/50 relative z-10 group-hover:border-cyan-400 transition-all"
                 onError={(e) => {
-                  e.target.style.display = 'none';
+                  e.target.style.display = "none";
                   e.target.parentElement.classList.add('bg-gradient-to-br', 'from-cyan-500', 'to-purple-600');
                 }}
               />
@@ -169,6 +146,14 @@ const Header = ({ user }) => {
           </div>
         )}
       </div>
+
+      {/* Background Animation */}
+      <style jsx="true">{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0) rotate(0deg); }
+          50% { transform: translateY(-10px) rotate(5deg); }
+        }
+      `}</style>
     </div>
   );
 };
