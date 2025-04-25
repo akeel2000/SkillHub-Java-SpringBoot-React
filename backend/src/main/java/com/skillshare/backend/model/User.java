@@ -1,11 +1,11 @@
+// --- User.java ---
 package com.skillshare.backend.model;
 
 import lombok.*;
-
-import java.util.List;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.List;
 
 @Document
 @Data
@@ -20,6 +20,7 @@ public class User {
     private String password;
     private String profilePic;
     private String coverPic;
-    private List<String> categories; 
-
+    private List<String> categories;
+    private String status = "active";
+    private int tokenVersion = 0;
 }
