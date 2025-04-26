@@ -34,7 +34,7 @@ const CreateGroup = () => {
 
       if (res.ok) {
         alert("Study Group created successfully!");
-        navigate("/study-groups"); // Go back to group feed
+        navigate("/groups"); // Go back to group feed
       } else {
         alert("Failed to create group");
       }

@@ -50,5 +50,12 @@ public class StudyGroupController {
     public void deleteGroup(@PathVariable String id) {
         groupRepo.deleteById(id);
     }
+
+    // Get all groups (public)
+@GetMapping
+public List<StudyGroup> getAllGroups() {
+    return groupRepo.findAll();
+}
+
 }
 
