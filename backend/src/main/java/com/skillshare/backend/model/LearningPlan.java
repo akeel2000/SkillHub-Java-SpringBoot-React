@@ -20,5 +20,5 @@ public class LearningPlan {
     private Date endDate;
     private List<String> tags;
     private boolean isPublic;
-    private List<Milestone> milestones;  // 🔗 Sub-model
+    private List<Milestone> milestones;
 }
