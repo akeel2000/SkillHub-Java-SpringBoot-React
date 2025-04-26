@@ -2,11 +2,6 @@ import React from "react";
 
 /**
  * PostCard component displays a single post with its content, media, and action buttons.
- *
- * Props:
- * - post: The post object containing content, media URLs, media types, and creation date.
- * - onEdit: Function to handle the edit action for the post.
- * - onDelete: Function to handle the delete action for the post.
  */
 const PostCard = ({ post, onEdit, onDelete }) => {
   /**
