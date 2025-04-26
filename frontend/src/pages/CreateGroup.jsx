@@ -1,0 +1,83 @@
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+const CreateGroup = () => {
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const navigate = useNavigate();
+  const userId = localStorage.getItem("userId");
+  const token = localStorage.getItem("token");
+
+  const handleCreateGroup = async () => {
+    if (!name || !description) {
+      alert("Please fill all fields!");
+      return;
+    }
+
+    const groupData = {
+      name,
+      description,
+      creatorId: userId,
+      memberIds: [userId],  // Creator is the first member
+      pinnedResources: []
+    };
+
+    try {
+      const res = await fetch("http://localhost:8080/api/groups", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(groupData),
+      });
+
+      if (res.ok) {
+        alert("Study Group created successfully!");
+        navigate("/study-groups"); // Go back to group feed
+      } else {
+        alert("Failed to create group");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error creating group");
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-6 flex items-center justify-center">
+      <div className="bg-purple-800/30 backdrop-blur-xl p-8 rounded-2xl shadow-2xl w-full max-w-xl">
+        <h2 className="text-3xl font-bold text-cyan-100 mb-8 text-center">
+          🚀 Create New Study Group
+        </h2>
+
+        <div className="space-y-6">
+          <input
+            type="text"
+            placeholder="Group Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full p-3 rounded-xl border-2 border-cyan-300/20 bg-purple-900/30 text-cyan-100 placeholder-cyan-300/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/30"
+          />
+
+          <textarea
+            placeholder="Group Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows="4"
+            className="w-full p-3 rounded-xl border-2 border-cyan-300/20 bg-purple-900/30 text-cyan-100 placeholder-cyan-300/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/30"
+          />
+
+          <button
+            onClick={handleCreateGroup}
+            className="w-full bg-cyan-500 py-3 rounded-xl text-white font-bold hover:scale-105 transition-all active:scale-95"
+          >
+            ➕ Create Group
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CreateGroup;

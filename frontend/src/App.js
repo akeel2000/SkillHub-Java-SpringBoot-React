@@ -30,6 +30,12 @@ import AddResource from "./pages/AddResource";
 import ManageMilestones from "./pages/ManageMilestones";
 import ExplorePlans from "./pages/ExplorePlans";
 
+// ✅ Import Group Management Pages
+import StudyGroups from "./pages/StudyGroups";      // group list page
+import CreateGroup from "./pages/CreateGroup";      // create new group
+import GroupHome from "./pages/GroupHome";          // inside a group discussion
+import ManageGroup from "./pages/ManageGroup";      // manage group (invite, pin)
+
 export default function App() {
   return (
     <Router>
@@ -62,6 +68,12 @@ export default function App() {
         <Route path="/add-resource/:id" element={<ProtectedRoute><AddResource /></ProtectedRoute>} />
         <Route path="/manage-milestones/:id" element={<ProtectedRoute><ManageMilestones /></ProtectedRoute>} />
         <Route path="/explore-plans" element={<ProtectedRoute><ExplorePlans /></ProtectedRoute>} />
+
+        {/* ✅ Group Management Area */}
+        <Route path="/groups" element={<ProtectedRoute><StudyGroups /></ProtectedRoute>} />
+        <Route path="/create-group" element={<ProtectedRoute><CreateGroup /></ProtectedRoute>} />
+        <Route path="/group/:id" element={<ProtectedRoute><GroupHome /></ProtectedRoute>} />
+        <Route path="/group/:id/manage" element={<ProtectedRoute><ManageGroup /></ProtectedRoute>} />
 
         {/* Fallback Route */}
         <Route path="*" element={<Navigate to="/" />} />

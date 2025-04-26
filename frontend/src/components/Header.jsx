@@ -62,7 +62,7 @@ const Header = ({ user }) => {
             { label: "Home", route: "/home" },
             { label: "Explore", route: "/explore-plans" },
             { label: "Notifications", route: "/notifications" },
-            { label: "Friends", route: "/friends" },
+            { label: "groups", route: "/groups" },
             { label: "My Plans", route: "/learning-plans" }
           ].map((item, idx) => (
             <button
