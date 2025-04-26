@@ -19,8 +19,13 @@ const Home = () => {
   const [editingPost, setEditingPost] = useState(null);
 
 
+
   const authFetch = async (url, options = {}) => {
     const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login"); // redirect if missing
+      return;
+    }
     return fetch(url, {
       ...options,
       headers: {
@@ -29,6 +34,16 @@ const Home = () => {
       },
     });
   };
+  // const authFetch = async (url, options = {}) => {
+  //   const token = localStorage.getItem("token");
+  //   return fetch(url, {
+  //     ...options,
+  //     headers: {
+  //       ...(options.headers || {}),
+  //       Authorization: `Bearer ${token}`,
+  //     },
+  //   });
+  // };
 
   const handleDelete = async (postId) => {
     if (!window.confirm("Are you sure you want to delete this post?")) return;
@@ -53,16 +68,20 @@ const Home = () => {
   const handleEditPost = (post) => {
     setEditingPost(post); // Only open the EditPostModal
   };
+
+
+
+
   useEffect(() => {
     const fetchUser = async () => {
       const token = localStorage.getItem("token");
       const email = localStorage.getItem("userEmail");
-
-      if (!email || !token) {
+  
+      if (!token || !email) {
         navigate("/login");
         return;
       }
-
+  
       try {
         const res = await authFetch(`http://localhost:8080/api/auth/user?email=${email}`);
         if (res.ok) {
@@ -70,17 +89,46 @@ const Home = () => {
           setUser(data);
           localStorage.setItem("userId", data.id);
         } else {
-          alert("Failed to load user");
-          navigate("/login");
+          throw new Error();
         }
-      } catch (error) {
-        alert("Error fetching user");
+      } catch {
+        localStorage.clear(); // clear invalid token
+        alert("Failed to load user");
         navigate("/login");
       }
     };
-
+  
     fetchUser();
   }, [navigate]);
+  
+  // useEffect(() => {
+  //   const fetchUser = async () => {
+  //     const token = localStorage.getItem("token");
+  //     const email = localStorage.getItem("userEmail");
+
+  //     if (!email || !token) {
+  //       navigate("/login");
+  //       return;
+  //     }
+
+  //     try {
+  //       const res = await authFetch(`http://localhost:8080/api/auth/user?email=${email}`);
+  //       if (res.ok) {
+  //         const data = await res.json();
+  //         setUser(data);
+  //         localStorage.setItem("userId", data.id);
+  //       } else {
+  //         alert("Failed to load user");
+  //         navigate("/login");
+  //       }
+  //     } catch (error) {
+  //       alert("Error fetching user");
+  //       navigate("/login");
+  //     }
+  //   };
+
+  //   fetchUser();
+  // }, [navigate]);
 
   useEffect(() => {
     const fetchPosts = async () => {
