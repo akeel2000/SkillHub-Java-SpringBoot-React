@@ -52,7 +52,7 @@ public class LearningPlanController {
         repo.deleteById(id);
     }
 
-    // 📌 Extra Features////
+    // 📌 Extra Features/////
     @PutMapping("/{id}/add-resource")
     public LearningPlan addResource(@PathVariable String id, @RequestBody String resource) {
         LearningPlan plan = repo.findById(id).orElse(null);
