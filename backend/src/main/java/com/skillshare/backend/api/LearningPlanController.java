@@ -62,7 +62,7 @@ public class LearningPlanController {
         }
         return null;
     }
-
+   //Add update
     @PutMapping("/{id}/update-milestones")
     public LearningPlan updateMilestones(@PathVariable String id, @RequestBody List<Milestone> milestones) {
         LearningPlan plan = repo.findById(id).orElse(null);
