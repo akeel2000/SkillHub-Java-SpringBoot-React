@@ -14,7 +14,7 @@ public class StudyGroupController {
     @Autowired
     private StudyGroupRepository groupRepo;
 
-    // Create a new group
+    // Create a new group//
     @PostMapping
     public StudyGroup createGroup(@RequestBody StudyGroup group) {
         return groupRepo.save(group);
