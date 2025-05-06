@@ -15,7 +15,7 @@ public class LearningPlanController {
     @Autowired
     private LearningPlanRepository repo;
 
-    // CRUD Plan
+    // CRUD Plan ///
     @PostMapping
     public LearningPlan create(@RequestBody LearningPlan plan) {
         return repo.save(plan);
@@ -46,13 +46,13 @@ public class LearningPlanController {
         plan.setId(id);
         return repo.save(plan);
     }
-
+//delete//
     @DeleteMapping("/{id}")
     public void delete(@PathVariable String id) {
         repo.deleteById(id);
     }
 
-    // 📌 Extra Features  Add-resource
+    // 📌 //Extra Features  Add-resource//
     @PutMapping("/{id}/add-resource")
     public LearningPlan addResource(@PathVariable String id, @RequestBody String resource) {
         LearningPlan plan = repo.findById(id).orElse(null);
@@ -62,7 +62,7 @@ public class LearningPlanController {
         }
         return null;
     }
-   //Add update
+   //Add update// //
     @PutMapping("/{id}/update-milestones")
     public LearningPlan updateMilestones(@PathVariable String id, @RequestBody List<Milestone> milestones) {
         LearningPlan plan = repo.findById(id).orElse(null);
