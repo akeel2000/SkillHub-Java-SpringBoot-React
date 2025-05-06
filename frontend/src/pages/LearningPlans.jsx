@@ -51,7 +51,7 @@ const LearningPlans = () => {
         ))}
       </div>
 
-      {/* Main Content */}
+      {/*/// Main Content// */}
       <div className="relative z-10 max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-3xl font-bold text-cyan-100">My Learning Plans 📚</h2>
