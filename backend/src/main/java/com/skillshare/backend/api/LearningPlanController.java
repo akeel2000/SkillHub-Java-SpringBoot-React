@@ -15,7 +15,7 @@ public class LearningPlanController {
     @Autowired
     private LearningPlanRepository repo;
 
-    // CRUD Plan
+    // CRUD Plan ///
     @PostMapping
     public LearningPlan create(@RequestBody LearningPlan plan) {
         return repo.save(plan);
