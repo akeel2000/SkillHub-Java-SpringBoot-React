@@ -38,6 +38,7 @@ public class StudyGroupController {
         return groupRepo.findById(id).orElse(null);
     }
 
+
     // Update group (name, description, pinned resources)
     @PutMapping("/{id}")
     public StudyGroup updateGroup(@PathVariable String id, @RequestBody StudyGroup updatedGroup) {
@@ -46,7 +47,7 @@ public class StudyGroupController {
     }
 
 
-    // Delete a group
+    // Delete a group//
     @DeleteMapping("/{id}")
     public void deleteGroup(@PathVariable String id) {
         groupRepo.deleteById(id);
@@ -59,4 +60,3 @@ public List<StudyGroup> getAllGroups() {
 }
 
 }
-
