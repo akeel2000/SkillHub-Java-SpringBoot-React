@@ -46,7 +46,7 @@ public class LearningPlanController {
         plan.setId(id);
         return repo.save(plan);
     }
-//delete
+//delete//
     @DeleteMapping("/{id}")
     public void delete(@PathVariable String id) {
         repo.deleteById(id);
