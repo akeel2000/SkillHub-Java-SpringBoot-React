@@ -25,7 +25,7 @@ const PlanProgress = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 relative overflow-hidden p-6">
-      {/* Floating Background Elements */}
+      {/*// Floating Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {[...Array(8)].map((_, i) => (
           <div
@@ -41,7 +41,7 @@ const PlanProgress = () => {
         ))}
       </div>
 
-      {/* Main Content */}
+      {/*// Main Content //*/}
       <div className="relative z-10 bg-gradient-to-br from-purple-800/50 to-blue-800/50 backdrop-blur-xl border border-cyan-300/20 rounded-2xl shadow-2xl max-w-4xl mx-auto p-8 animate-fadeInUp">
         <h2 className="text-2xl font-bold mb-6 text-cyan-100">Progress</h2>
         

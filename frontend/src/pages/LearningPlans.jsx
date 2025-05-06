@@ -35,7 +35,7 @@ const LearningPlans = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-6">
-      {/* Floating Background Elements */}
+      {/* //Floating Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {[...Array(8)].map((_, i) => (
           <div
@@ -51,7 +51,7 @@ const LearningPlans = () => {
         ))}
       </div>
 
-      {/* Main Content */}
+      {/*/// Main Content// */}
       <div className="relative z-10 max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-3xl font-bold text-cyan-100">My Learning Plans 📚</h2>
@@ -80,7 +80,7 @@ const LearningPlans = () => {
                   {new Date(plan.startDate).toLocaleDateString()} ➔ {new Date(plan.endDate).toLocaleDateString()}
                 </p>
 
-                {/* Action Buttons */}
+                {/* Action Buttons// */}
                 <div className="mt-4 flex flex-wrap gap-3">
                   <button
                     onClick={() => navigate(`/edit-plan/${plan.id}`)}
@@ -119,7 +119,7 @@ const LearningPlans = () => {
         </div>
       </div>
 
-      {/* Background Animation */}
+      {/* //Background Animation// */}
       <style jsx global>{`
         @keyframes float {
           0%, 100% { transform: translateY(0) rotate(0deg); }
