@@ -39,7 +39,7 @@ public class StudyGroupController {
     }
 
 
-    // Update group (name, description, pinned resources)
+    // Update group (name, description, pinned resources)//
     @PutMapping("/{id}")
     public StudyGroup updateGroup(@PathVariable String id, @RequestBody StudyGroup updatedGroup) {
         updatedGroup.setId(id);
