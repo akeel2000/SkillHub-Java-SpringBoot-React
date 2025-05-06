@@ -20,7 +20,7 @@ public class StudyGroupController {
         return groupRepo.save(group);
     }
 
-    // Get groups created by a user
+    // Get groups created by a user//
     @GetMapping("/created/{creatorId}")
     public List<StudyGroup> getGroupsCreatedByUser(@PathVariable String creatorId) {
         return groupRepo.findByCreatorId(creatorId);
@@ -32,7 +32,7 @@ public class StudyGroupController {
         return groupRepo.findByMemberIdsContains(userId);
     }
 
-    // Get single group by ID
+    // Get single group by ID//
     @GetMapping("/{id}")
     public StudyGroup getGroupById(@PathVariable String id) {
         return groupRepo.findById(id).orElse(null);
