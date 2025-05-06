@@ -80,7 +80,7 @@ const LearningPlans = () => {
                   {new Date(plan.startDate).toLocaleDateString()} ➔ {new Date(plan.endDate).toLocaleDateString()}
                 </p>
 
-                {/* Action Buttons//// */}
+                {/* Action Buttons// */}
                 <div className="mt-4 flex flex-wrap gap-3">
                   <button
                     onClick={() => navigate(`/edit-plan/${plan.id}`)}
