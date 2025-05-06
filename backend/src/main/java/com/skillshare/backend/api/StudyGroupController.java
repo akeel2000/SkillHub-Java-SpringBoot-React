@@ -26,7 +26,7 @@ public class StudyGroupController {
         return groupRepo.findByCreatorId(creatorId);
     }
 
-    // Get groups where user is a member
+    // Get groups where user is a member //
     @GetMapping("/joined/{userId}")
     public List<StudyGroup> getGroupsUserJoined(@PathVariable String userId) {
         return groupRepo.findByMemberIdsContains(userId);
@@ -51,7 +51,7 @@ public class StudyGroupController {
         groupRepo.deleteById(id);
     }
 
-    // Get all groups (public)
+    // Get all groups (public)//
 @GetMapping
 public List<StudyGroup> getAllGroups() {
     return groupRepo.findAll();
