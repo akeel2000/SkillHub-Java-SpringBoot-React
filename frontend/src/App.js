@@ -30,6 +30,9 @@ import AddResource from "./pages/AddResource";
 import ManageMilestones from "./pages/ManageMilestones";
 import ExplorePlans from "./pages/ExplorePlans";
 
+import OAuthRedirectHandler from "./pages/OAuthRedirectHandler";
+
+
 // ✅ Import Group Management Pages
 import StudyGroups from "./pages/StudyGroups";      // group list page
 import CreateGroup from "./pages/CreateGroup";      // create new group
@@ -45,6 +48,8 @@ export default function App() {
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
         <Route path="/signup" element={<PublicOnlyRoute><Signup /></PublicOnlyRoute>} />
+
+        <Route path="/oauth-success" element={<OAuthRedirectHandler />} />
 
         {/* Category Select */}
         <Route path="/categories" element={<CategorySelect />} />

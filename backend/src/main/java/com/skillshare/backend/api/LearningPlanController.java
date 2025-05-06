@@ -52,7 +52,7 @@ public class LearningPlanController {
         repo.deleteById(id);
     }
 
-    // 📌 Extra Features
+    // 📌 Extra Features  Add-resource
     @PutMapping("/{id}/add-resource")
     public LearningPlan addResource(@PathVariable String id, @RequestBody String resource) {
         LearningPlan plan = repo.findById(id).orElse(null);
@@ -62,7 +62,7 @@ public class LearningPlanController {
         }
         return null;
     }
-
+   //Add update
     @PutMapping("/{id}/update-milestones")
     public LearningPlan updateMilestones(@PathVariable String id, @RequestBody List<Milestone> milestones) {
         LearningPlan plan = repo.findById(id).orElse(null);

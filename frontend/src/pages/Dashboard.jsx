@@ -6,22 +6,22 @@ const Dashboard = () => {
 
   const cards = [
     {
-      title: "📚 My Learning Plans",
+      title: " My Learning Plans",
       description: "View and manage your personal learning journeys.",
       route: "/learning-plans",
     },
     {
-      title: "🌎 Explore Public Plans",
+      title: " Explore Public Plans",
       description: "Discover and copy learning plans shared by others.",
       route: "/explore-plans",
     },
     {
-      title: "🧠 Profile",
+      title: " Profile",
       description: "View or update your personal profile.",
       route: "/profile",
     },
     {
-      title: "⚙️ Account Settings",
+      title: " Account Settings",
       description: "Manage your account and preferences.",
       route: "/settings",
     },
