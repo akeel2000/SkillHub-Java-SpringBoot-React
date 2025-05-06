@@ -53,7 +53,7 @@ public class StudyGroupController {
         groupRepo.deleteById(id);
     }
 
-    // Get all groups (public)//
+    // Get all groups (public)////
 @GetMapping
 public List<StudyGroup> getAllGroups() {
     return groupRepo.findAll();
