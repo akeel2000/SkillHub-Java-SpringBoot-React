@@ -119,7 +119,7 @@ const LearningPlans = () => {
         </div>
       </div>
 
-      {/* //Background Animation */}
+      {/* //Background Animation// */}
       <style jsx global>{`
         @keyframes float {
           0%, 100% { transform: translateY(0) rotate(0deg); }
