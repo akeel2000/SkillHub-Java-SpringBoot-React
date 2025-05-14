@@ -2,11 +2,17 @@ package com.skillshare.backend.api;
 
 import com.skillshare.backend.model.Post;
 import com.skillshare.backend.repository.PostRepository;
+import com.skillshare.backend.repository.UserRepository;
+
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import com.skillshare.backend.model.Comment;
+import com.skillshare.backend.model.User;
+
+
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +24,8 @@ public class PostController {
 
     @Autowired
     private PostRepository postRepo;
+    @Autowired
+    private UserRepository userRepo;
 
     @PostMapping("/create")
     public ResponseEntity<?> createPost(
@@ -119,4 +127,51 @@ public class PostController {
     public ResponseEntity<?> getPostsByUser(@PathVariable String userId) {
         return ResponseEntity.ok(postRepo.findByUserId(userId));
     }
+
+// Backend Java (Controller)
+@PostMapping("/{postId}/comment")
+public ResponseEntity<?> addComment(@PathVariable String postId, @RequestBody Comment comment) {
+    Optional<Post> optionalPost = postRepo.findById(postId);
+    if (optionalPost.isEmpty()) return ResponseEntity.notFound().build();
+
+    Post post = optionalPost.get();
+    if (post.getComments() == null) post.setComments(new ArrayList<>());
+    comment.setCommentedAt(new Date());
+    if (comment.getUserName() == null || comment.getUserName().isEmpty()) {
+        comment.setUserName(getUserNameById(comment.getUserId()));
+    }
+    post.getComments().add(comment);
+    return ResponseEntity.ok(postRepo.save(post));
+}
+
+@PutMapping("/{postId}/react")
+public ResponseEntity<?> reactToPost(
+        @PathVariable String postId,
+        @RequestParam String userId,
+        @RequestParam String reaction
+) {
+    Optional<Post> optionalPost = postRepo.findById(postId);
+    if (optionalPost.isEmpty()) return ResponseEntity.notFound().build();
+
+    Post post = optionalPost.get();
+    if (post.getReactions() == null) post.setReactions(new HashMap<>());
+    if (post.getReactionUsers() == null) post.setReactionUsers(new HashMap<>());
+
+    // ✅ Auto-fetch name instead of receiving from frontend
+    String userName = getUserNameById(userId);
+
+    post.getReactions().put(userId, reaction);
+    post.getReactionUsers().put(userId, userName);
+
+    return ResponseEntity.ok(postRepo.save(post));
+}
+
+
+// Helper method to lookup user name from user service or database
+private String getUserNameById(String userId) {
+    return userRepo.findById(userId).map(User::getName).orElse("Anonymous");
+}
+
+
+
 }
