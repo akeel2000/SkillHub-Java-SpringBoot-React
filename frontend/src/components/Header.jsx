@@ -61,7 +61,7 @@ const Header = ({ user }) => {
             { label: "Dashboard", route: "/dashboard" },
             { label: "Home", route: "/home" },
             { label: "Explore", route: "/explore-plans" },
-            { label: "Notifications", route: "/notifications" },
+            // { label: "Notifications", route: "/notifications" },
             { label: "groups", route: "/groups" },
             { label: "My Plans", route: "/learning-plans" }
           ].map((item, idx) => (

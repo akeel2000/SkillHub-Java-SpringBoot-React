@@ -5,7 +5,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents a Post entity in the application.
@@ -23,9 +25,15 @@ public class Post {
 
     private String content; // Text content of the post
 
-    private List<String> mediaUrls; // List of URLs pointing to the media files associated with the post
+    private List<String> mediaUrls; // URLs to media files
 
-    private List<String> mediaTypes; // List of media types (e.g., "image", "video") corresponding to the media files
+    private List<String> mediaTypes; // Types of media (image, video, etc.)
 
-    private Date createdAt = new Date(); // Timestamp indicating when the post was created
+    private Date createdAt = new Date(); // Timestamp for post creation
+
+    private Map<String, String> reactions = new HashMap<>();     // userId → emoji
+
+    private Map<String, String> reactionUsers = new HashMap<>(); // userId → userName
+
+    private List<Comment> comments; // List of comments
 }
