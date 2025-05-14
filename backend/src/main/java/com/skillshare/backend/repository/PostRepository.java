@@ -17,4 +17,6 @@ public interface PostRepository extends MongoRepository<Post, String> {
      * @return A list of posts created by the specified user.
      */
     List<Post> findByUserId(String userId);
+
+    
 }
