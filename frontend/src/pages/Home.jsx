@@ -38,16 +38,7 @@ const Home = () => {
       },
     });
   };
-  // const authFetch = async (url, options = {}) => {
-  //   const token = localStorage.getItem("token");
-  //   return fetch(url, {
-  //     ...options,
-  //     headers: {
-  //       ...(options.headers || {}),
-  //       Authorization: `Bearer ${token}`,
-  //     },
-  //   });
-  // };
+
 
   const handleDelete = async (postId) => {
     if (!window.confirm("Are you sure you want to delete this post?")) return;
@@ -105,34 +96,7 @@ const Home = () => {
     fetchUser();
   }, [navigate]);
   
-  // useEffect(() => {
-  //   const fetchUser = async () => {
-  //     const token = localStorage.getItem("token");
-  //     const email = localStorage.getItem("userEmail");
-
-  //     if (!email || !token) {
-  //       navigate("/login");
-  //       return;
-  //     }
-
-  //     try {
-  //       const res = await authFetch(`http://localhost:8080/api/auth/user?email=${email}`);
-  //       if (res.ok) {
-  //         const data = await res.json();
-  //         setUser(data);
-  //         localStorage.setItem("userId", data.id);
-  //       } else {
-  //         alert("Failed to load user");
-  //         navigate("/login");
-  //       }
-  //     } catch (error) {
-  //       alert("Error fetching user");
-  //       navigate("/login");
-  //     }
-  //   };
-
-  //   fetchUser();
-  // }, [navigate]);
+ 
 
  // ✅ Move this OUTSIDE of useEffect
 const fetchPosts = async () => {
@@ -385,6 +349,11 @@ useEffect(() => {
   userName={user.fullName}
   token={localStorage.getItem("token")}
   onUpdate={fetchPosts}
+  onEdit={() => setEditingPost(post)}
+  onDelete={() => handleDelete(post.id)}
+  showControls={post.userId === user.id}
+
+
 
 
                   className="bg-gradient-to-br from-purple-800/50 to-blue-800/50 backdrop-blur-sm rounded-2xl border border-cyan-300/20 shadow-2xl transform transition-all hover:scale-[1.01] hover:shadow-3xl"

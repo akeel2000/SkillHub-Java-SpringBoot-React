@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 
-const PostCardWithReactions = ({ post, userId, userName, token, onUpdate }) => {
+const PostCardWithReactions = ({ post, userId, userName, token, onUpdate, showControls, onEdit, onDelete }) => {
+
   const [comment, setComment] = useState("");
   const reactionOptions = ["👍", "😂", "❤️", "😮", "😢", "😡"];
 
@@ -141,9 +142,16 @@ const PostCardWithReactions = ({ post, userId, userName, token, onUpdate }) => {
             onClick={handleComment} 
             className="px-4 py-1 bg-gradient-to-br from-cyan-500 to-blue-600 text-white rounded-lg hover:shadow-cyan-400/20 transition-all"
           >
-            Post
+            Comment
           </button>
         </div>
+
+        {showControls && (
+        <div className="flex justify-end gap-2 mt-4">
+          <button onClick={onEdit} className="text-sm text-yellow-500 hover:underline">Edit</button>
+          <button onClick={onDelete} className="text-sm text-red-500 hover:underline">Delete</button>
+        </div>
+      )}
         <p className="text-xs text-cyan-300/60 font-mono mt-2">
           {new Date(post.createdAt).toLocaleString('en-US', {
             month: 'short',
