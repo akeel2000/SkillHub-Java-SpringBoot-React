@@ -1,18 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
+// PublicProfile component displays another user's profile and allows sending friend requests
 const PublicProfile = ({ currentUser }) => {
-  const { id } = useParams();
-  const [profile, setProfile] = useState(null);
-  const [friendStatus, setFriendStatus] = useState("");
+  const { id } = useParams(); // Get user ID from URL params
+  const [profile, setProfile] = useState(null); // State for profile data
+  const [friendStatus, setFriendStatus] = useState(""); // State for friendship status
 
   useEffect(() => {
+    // Fetch public profile and friendship status
     const fetchProfile = async () => {
       try {
         const res = await fetch(`http://localhost:8080/api/auth/public-profile/${id}`);
         const data = await res.json();
         setProfile(data);
 
+        // Fetch friend status if current user is logged in
         if (currentUser?.id && id) {
           const statusRes = await fetch(`http://localhost:8080/api/friends/status?from=${currentUser.id}&to=${id}`);
           const statusText = await statusRes.text();
@@ -25,6 +28,7 @@ const PublicProfile = ({ currentUser }) => {
     fetchProfile();
   }, [id, currentUser]);
 
+  // Handle sending a friend request
   const handleAddFriend = async () => {
     try {
       const res = await fetch(`http://localhost:8080/api/friends/request?fromUserId=${currentUser.id}&toUserId=${id}`, {
@@ -38,6 +42,7 @@ const PublicProfile = ({ currentUser }) => {
     }
   };
 
+  // Show loading state while fetching profile
   if (!profile) return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-6 text-cyan-300">
       Loading...
@@ -45,6 +50,7 @@ const PublicProfile = ({ currentUser }) => {
   );
 
   return (
+    // Main background and floating elements for visual effect
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 relative overflow-hidden p-6">
       {/* Floating Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -62,9 +68,9 @@ const PublicProfile = ({ currentUser }) => {
         ))}
       </div>
 
-      {/* Main Content */}
+      {/* Main Content Card */}
       <div className="relative z-10 bg-gradient-to-br from-purple-800/50 to-blue-800/50 backdrop-blur-xl border border-cyan-300/20 rounded-3xl shadow-2xl max-w-4xl mx-auto animate-fadeInUp">
-        {/* Cover Photo */}
+        {/* Cover Photo Section */}
         {profile.coverPic && (
           <div className="h-64 overflow-hidden rounded-t-3xl border-b border-cyan-300/20">
             <img
@@ -75,7 +81,7 @@ const PublicProfile = ({ currentUser }) => {
           </div>
         )}
 
-        {/* Profile Header */}
+        {/* Profile Header with avatar and basic info */}
         <div className="flex items-center space-x-6 px-8 -mt-16">
           <div className="relative group">
             <img
@@ -93,7 +99,7 @@ const PublicProfile = ({ currentUser }) => {
           </div>
         </div>
 
-        {/* Friend Status */}
+        {/* Friend Request/Status Section */}
         <div className="px-8 mt-6">
           {currentUser?.id !== profile.id && (
             <div className="flex items-center space-x-4">
@@ -137,6 +143,7 @@ const PublicProfile = ({ currentUser }) => {
         </div>
       </div>
 
+      {/* Animation styles for floating elements and fade-in effect */}
       <style jsx global>{`
         @keyframes float {
           0%, 100% { transform: translateY(0) rotate(0deg); }
