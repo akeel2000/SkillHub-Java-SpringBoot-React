@@ -1,147 +1,201 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { FiX, FiImage, FiUpload, FiTrash2 } from "react-icons/fi";
+import { motion, AnimatePresence } from "framer-motion";
 
 const EditPostModal = ({ post, onClose, onUpdate }) => {
   const [content, setContent] = useState(post.content || "");
   const [media, setMedia] = useState([]);
+  const [previewUrls, setPreviewUrls] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleMediaChange = (e) => {
-    setMedia(Array.from(e.target.files));
+    const files = Array.from(e.target.files);
+    const validFiles = files.filter(file => {
+      const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'video/mp4', 'video/webm'];
+      const maxSize = 10 * 1024 * 1024;
+      return validTypes.includes(file.type) && file.size <= maxSize;
+    });
+
+    if (validFiles.length === 0) {
+      setError("Please upload valid images or videos (max 10MB)");
+      return;
+    }
+
+    setMedia(validFiles);
+    setPreviewUrls(validFiles.map(file => URL.createObjectURL(file)));
+    setError(null);
   };
 
   const handleUpdate = async () => {
+    if (!content.trim() && media.length === 0) {
+      setError("Please add text or media");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("content", content);
-    if (media.length > 0) {
-      media.forEach((file) => formData.append("media", file));
-    }
+    media.forEach((file) => formData.append("media", file));
 
     try {
       setUploading(true);
       const res = await fetch(`http://localhost:8080/api/posts/${post.id}`, {
         method: "PUT",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         body: formData,
       });
 
-      if (res.ok) {
-        const updatedPost = await res.json();
-        onUpdate(updatedPost);
-        onClose();
-      } else {
-        alert("Failed to update post");
-      }
+      if (!res.ok) throw new Error("Update failed");
+      const updatedPost = await res.json();
+      onUpdate(updatedPost);
+      onClose();
     } catch (err) {
-      console.error("Update error", err);
-      alert("Error updating post");
+      setError(err.message || "Error updating post");
     } finally {
       setUploading(false);
     }
   };
 
+  const removeMedia = (index) => {
+    URL.revokeObjectURL(previewUrls[index]);
+    setMedia(media.filter((_, i) => i !== index));
+    setPreviewUrls(previewUrls.filter((_, i) => i !== index));
+  };
+
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      {/* Floating Background Elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        {[...Array(4)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-16 h-16 border-4 border-opacity-10 border-cyan-300 rounded-full"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animation: `float ${10 + i * 2}s infinite linear`,
-              transform: `scale(${0.5 + Math.random() * 1.5})`,
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Modal Content */}
-      <div className="bg-gradient-to-br from-purple-800/50 to-blue-800/50 backdrop-blur-xl border border-cyan-300/20 rounded-2xl shadow-2xl w-full max-w-lg p-6 relative animate-fadeInUp">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full border-2 border-cyan-300/20 text-cyan-300 hover:border-cyan-400 hover:text-cyan-400 hover:bg-cyan-400/10 transition-all"
-          aria-label="Close"
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/30 backdrop-blur-md z-50 flex items-center justify-center p-4"
+      >
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: -20, opacity: 0 }}
+          transition={{ type: "spring", damping: 25 }}
+          className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden"
         >
-          ×
-        </button>
+          {/* Header */}
+          <div className="flex items-center justify-between p-5 border-b border-gray-100">
+            <h2 className="text-xl font-semibold text-gray-800">Edit Post</h2>
+            <button
+              onClick={onClose}
+              className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+              aria-label="Close"
+            >
+              <FiX className="h-5 w-5 text-gray-500" />
+            </button>
+          </div>
 
-        <h2 className="text-2xl font-bold mb-6 text-center bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-          Edit Spark
-        </h2>
-
-        <textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          rows={4}
-          className="w-full px-4 py-3 bg-purple-900/30 border-2 border-cyan-300/20 rounded-xl text-cyan-100 placeholder-cyan-200/50 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition-all mb-4"
-          placeholder="Revise your thoughts..."
-        />
-
-        <div className="relative group mb-4">
-          <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-cyan-300/20 rounded-xl cursor-pointer hover:border-cyan-400/40 transition-all">
-            <div className="flex flex-col items-center text-cyan-300/80">
-              <svg className="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <span className="text-sm">
-                {media.length > 0 ? `${media.length} files selected` : "Update media"}
-              </span>
-            </div>
-            <input
-              type="file"
-              multiple
-              accept="image/*,video/*"
-              onChange={handleMediaChange}
-              className="hidden"
+          {/* Content */}
+          <div className="p-5 space-y-4">
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              rows={4}
+              className="w-full px-4 py-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-teal-400 focus:ring-2 focus:ring-teal-100 outline-none transition-all resize-none"
+              placeholder="What would you like to update?"
             />
-          </label>
-        </div>
 
-        <div className="flex justify-end gap-3 mt-6">
-          <button
-            onClick={onClose}
-            className="px-6 py-2 border-2 border-cyan-300/20 text-cyan-300 rounded-xl hover:border-cyan-400 hover:text-cyan-400 transition-all"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleUpdate}
-            disabled={uploading}
-            className="px-6 py-2 bg-gradient-to-br from-cyan-500 to-blue-600 text-white font-bold rounded-xl shadow-2xl hover:shadow-3xl transform transition-all duration-300 hover:-translate-y-1 hover:scale-105 active:scale-95"
-          >
-            {uploading ? (
-              <span className="flex items-center justify-center">
-                <svg className="animate-spin h-5 w-5 mr-3 text-white" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                </svg>
-                Updating...
-              </span>
-            ) : (
-              "Update Spark"
+            {/* Media Previews */}
+            {previewUrls.length > 0 && (
+              <div className="grid grid-cols-3 gap-2">
+                {previewUrls.map((url, i) => (
+                  <div key={i} className="relative aspect-square group">
+                    {url.match(/video/) ? (
+                      <video
+                        src={url}
+                        controls
+                        className="w-full h-full object-cover rounded-lg bg-gray-100"
+                      />
+                    ) : (
+                      <img
+                        src={url}
+                        alt=""
+                        className="w-full h-full object-cover rounded-lg bg-gray-100"
+                      />
+                    )}
+                    <button
+                      onClick={() => removeMedia(i)}
+                      className="absolute top-2 right-2 p-1.5 bg-white/90 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-sm hover:bg-white"
+                    >
+                      <FiTrash2 className="h-4 w-4 text-red-500" />
+                    </button>
+                  </div>
+                ))}
+              </div>
             )}
-          </button>
-        </div>
-      </div>
 
-      <style jsx global>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-20px) rotate(10deg); }
-        }
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fadeInUp {
-          animation: fadeInUp 0.5s ease-out forwards;
-        }
-      `}</style>
-    </div>
+            {/* File Upload */}
+            <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-gray-200 rounded-xl hover:border-teal-400 transition-colors">
+              <label className="flex flex-col items-center justify-center cursor-pointer">
+                <div className="p-3 bg-teal-50 rounded-full mb-3">
+                  <FiUpload className="h-6 w-6 text-teal-500" />
+                </div>
+                <span className="text-sm font-medium text-gray-600 mb-1">
+                  {media.length > 0 ? 'Add more files' : 'Upload photos/videos'}
+                </span>
+                <span className="text-xs text-gray-400">PNG, JPG, MP4 up to 10MB</span>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*,video/*"
+                  onChange={handleMediaChange}
+                  className="hidden"
+                />
+              </label>
+            </div>
+
+            {/* Error Message */}
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-3 bg-red-50 text-red-600 rounded-lg flex items-start text-sm"
+              >
+                <FiX className="h-4 w-4 mt-0.5 mr-2 flex-shrink-0" />
+                {error}
+              </motion.div>
+            )}
+          </div>
+
+          {/* Footer */}
+          <div className="flex justify-end gap-3 p-5 border-t border-gray-100">
+            <button
+              onClick={onClose}
+              disabled={uploading}
+              className="px-5 py-2.5 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-medium"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleUpdate}
+              disabled={uploading || (!content.trim() && media.length === 0)}
+              className={`px-5 py-2.5 rounded-lg font-medium transition-all ${
+                uploading || (!content.trim() && media.length === 0)
+                  ? 'bg-teal-200 text-white cursor-not-allowed'
+                  : 'bg-teal-600 text-white hover:bg-teal-700 shadow-md hover:shadow-lg'
+              }`}
+            >
+              {uploading ? (
+                <span className="flex items-center justify-center">
+                  <motion.span
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                    className="h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"
+                  />
+                  Updating...
+                </span>
+              ) : (
+                'Update Post'
+              )}
+            </button>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   );
 };
 

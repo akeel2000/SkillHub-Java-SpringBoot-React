@@ -7,9 +7,9 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Comment {
- private String userId;
-private String userName;
-private String commentText;
-private Date commentedAt;
+  private String userId;
+  private String userName;
+  private String commentText;
+  private Date commentedAt;
 
 }
