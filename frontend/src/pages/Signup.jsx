@@ -3,18 +3,22 @@ import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
   const navigate = useNavigate();
+  // Form state for user input fields
   const [form, setForm] = useState({
     name: "",
     lastName: "",
     email: "",
     password: "",
   });
+  // State to control display of success modal
   const [showSuccess, setShowSuccess] = useState(false);
 
+  // Handle input changes for all form fields
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // Handle form submission for signup
   const handleSignup = async (e) => {
     e.preventDefault();
     try {
@@ -26,7 +30,7 @@ const Signup = () => {
 
       const data = await res.text();
       if (res.ok) {
-        setShowSuccess(true);
+        setShowSuccess(true); // Show success modal on successful registration
       } else {
         alert(data || "Registration failed");
       }
@@ -35,13 +39,14 @@ const Signup = () => {
     }
   };
 
+  // Redirect to Google OAuth signup
   const handleGoogleSignup = () => {
     window.location.href = "http://localhost:8080/oauth2/authorization/google";
   };
 
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 overflow-hidden">
-      {/* Animated Background */}
+      {/* Animated Background Circles */}
       <div className="absolute inset-0 overflow-hidden">
         {[...Array(8)].map((_, i) => (
           <div
@@ -57,13 +62,15 @@ const Signup = () => {
         ))}
       </div>
 
-      {/* Success Modal */}
+      {/* Success Modal shown after successful registration */}
       {showSuccess && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn">
           <div className="relative bg-gradient-to-br from-purple-800/70 to-blue-800/70 p-8 rounded-3xl shadow-2xl backdrop-blur-xl border border-cyan-300/30 max-w-md w-[90%] text-center space-y-4 animate-float">
+            {/* Decorative background elements */}
             <div className="absolute -top-4 -right-4 w-12 h-12 bg-cyan-400/20 rounded-full blur-xl" />
             <div className="absolute -bottom-4 -left-4 w-12 h-12 bg-blue-400/20 rounded-full blur-xl" />
             
+            {/* Animated checkmark icon */}
             <svg 
               className="w-20 h-20 mx-auto text-cyan-400 animate-checkmark"
               viewBox="0 0 52 52" 
@@ -79,6 +86,7 @@ const Signup = () => {
             <h2 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
               Registration Successful!
             </h2>
+            {/* Button to navigate to login page */}
             <button
               onClick={() => navigate("/login", { state: { email: form.email } })}
               className="w-full bg-gradient-to-br from-cyan-500 to-blue-600 text-white font-bold py-3 rounded-xl shadow-2xl hover:shadow-3xl transform transition-all duration-300 hover:-translate-y-1 hover:scale-105 active:scale-95"
@@ -88,17 +96,18 @@ const Signup = () => {
           </div>
         </div>
       )}
-
       {/* Signup Form */}
       <form 
         onSubmit={handleSignup} 
         className="relative z-10 bg-gradient-to-br from-purple-800/50 to-blue-800/50 p-8 rounded-3xl shadow-2xl backdrop-blur-xl border border-cyan-300/20 w-full max-w-md space-y-6 animate-fadeInUp"
       >
+        {/* Title */}
         <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 text-center mb-6">
           Join SkillHub
           <div className="absolute inset-0 -z-10 blur-2xl opacity-20 bg-gradient-to-r from-cyan-400 to-blue-500" />
         </h2>
 
+        {/* Name fields */}
         <div className="grid grid-cols-2 gap-4">
           <div className="relative group">
             <input
@@ -127,6 +136,7 @@ const Signup = () => {
           </div>
         </div>
 
+        {/* Email and password fields */}
         <div className="space-y-4">
           <div className="relative group">
             <input
@@ -155,6 +165,7 @@ const Signup = () => {
           </div>
         </div>
 
+        {/* Submit button */}
         <button 
           type="submit" 
           className="w-full bg-gradient-to-br from-cyan-500 to-blue-600 text-white font-bold py-3 rounded-xl shadow-2xl hover:shadow-3xl transform transition-all duration-300 hover:-translate-y-1 hover:scale-105 active:scale-95"
@@ -162,6 +173,7 @@ const Signup = () => {
           Create Account
         </button>
 
+        {/* Divider */}
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-cyan-300/20" />
@@ -171,6 +183,7 @@ const Signup = () => {
           </div>
         </div>
 
+        {/* Google signup button */}
         <button
           type="button"
           onClick={handleGoogleSignup}
@@ -184,6 +197,7 @@ const Signup = () => {
           </span>
         </button>
 
+        {/* Link to login page */}
         <p className="text-center text-cyan-300/80">
           Already have an account?{" "}
           <button 
@@ -195,6 +209,7 @@ const Signup = () => {
         </p>
       </form>
 
+      {/* Animation styles for background and modal */}
       <style jsx global>{`
         @keyframes float {
           0%, 100% { transform: translateY(0) rotate(0deg); }
