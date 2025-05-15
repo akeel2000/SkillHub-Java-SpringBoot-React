@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+// StudyGroups component displays all available study groups and allows navigation to group details or group creation
 const StudyGroups = () => {
-  const [groups, setGroups] = useState([]);
+  const [groups, setGroups] = useState([]); // State to store fetched groups
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token"); // Retrieve JWT token from local storage
 
   useEffect(() => {
+    // Fetch all study groups from backend API
     const fetchAllGroups = async () => {
       try {
         const res = await fetch(`http://localhost:8080/api/groups`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const allGroups = await res.json();
-        setGroups(allGroups);
+        setGroups(allGroups); // Update state with fetched groups
       } catch (error) {
         console.error("Failed to load groups", error);
       }
@@ -23,8 +25,10 @@ const StudyGroups = () => {
   }, [token]);
 
   return (
+    // Page background and layout
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-6 text-cyan-100">
       <div className="max-w-6xl mx-auto">
+        {/* Header section with title and create group button */}
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-3xl font-bold">🎯 Study Groups</h2>
           <button
@@ -37,16 +41,18 @@ const StudyGroups = () => {
 
         {/* Groups List */}
         {groups.length === 0 ? (
+          // Show message if no groups are available
           <p className="text-center text-cyan-300 mt-20">
             No groups available yet. Create one now!
           </p>
         ) : (
+          // Render grid of group cards
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {groups.map((group) => (
               <div
                 key={group.id}
                 className="bg-purple-800/40 p-6 rounded-2xl shadow-xl border border-cyan-300/10 hover:border-cyan-400/30 hover:scale-105 transform transition-all cursor-pointer"
-                onClick={() => navigate(`/group/${group.id}`)}
+                onClick={() => navigate(`/group/${group.id}`)} // Navigate to group details page
               >
                 <h3 className="text-xl font-bold mb-2">{group.name}</h3>
                 <p className="text-cyan-300 mb-4 line-clamp-2">{group.description}</p>
