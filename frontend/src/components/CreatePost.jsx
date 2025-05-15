@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { FiImage, FiX, FiPlus, FiAlertCircle } from "react-icons/fi";
 
 const CreatePost = ({ userId, onPostCreated }) => {
   const [content, setContent] = useState("");
@@ -100,7 +101,8 @@ const CreatePost = ({ userId, onPostCreated }) => {
   };
 
   return (
-    <div className={`bg-white rounded-lg shadow-md p-4 mb-6 transition-all duration-300 ${isExpanded ? 'max-h-[800px]' : 'max-h-[72px] overflow-hidden'}`}>
+    <div className={`bg-white rounded-lg border border-gray-200 shadow-sm p-4 mb-6 transition-all duration-300 ${isExpanded ? 'max-h-[800px]' : 'max-h-[72px] overflow-hidden'}`}>
+      {/* Collapsed State */}
       <div
         className={`flex items-center space-x-3 cursor-pointer ${isExpanded ? 'hidden' : ''}`}
         onClick={() => {
@@ -108,14 +110,13 @@ const CreatePost = ({ userId, onPostCreated }) => {
           setTimeout(() => textareaRef.current?.focus(), 100);
         }}
       >
-        <div className="w-10 h-10 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center text-blue-500">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
+        <div className="w-10 h-10 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center text-teal-500">
+          <FiPlus className="h-5 w-5" />
         </div>
         <span className="text-gray-500">What's on your mind?</span>
       </div>
 
+      {/* Expanded State */}
       <div className={`space-y-4 ${!isExpanded ? 'hidden' : ''}`}>
         <div className="flex items-start space-x-3">
           <div className="w-10 h-10 rounded-full bg-gray-100 border border-gray-200 flex-shrink-0"></div>
@@ -123,13 +124,14 @@ const CreatePost = ({ userId, onPostCreated }) => {
             ref={textareaRef}
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all"
+            className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-300 focus:border-transparent transition-all"
             placeholder="Share your thoughts..."
             rows={3}
             aria-label="Post content"
           />
         </div>
 
+        {/* Media Previews */}
         {previewUrls.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 ml-13">
             {previewUrls.map((url, i) => (
@@ -154,24 +156,22 @@ const CreatePost = ({ userId, onPostCreated }) => {
                   className="absolute top-2 right-2 w-8 h-8 bg-white/80 rounded-full flex items-center justify-center text-gray-700 hover:bg-white transition-colors shadow-sm"
                   aria-label={`Remove media ${i + 1}`}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+                  <FiX className="h-4 w-4" />
                 </button>
               </div>
             ))}
           </div>
         )}
 
+        {/* Error Message */}
         {error && (
           <div className="px-4 py-2 bg-red-50 text-red-600 rounded-lg flex items-center ml-13">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+            <FiAlertCircle className="h-5 w-5 mr-2" />
             {error}
           </div>
         )}
 
+        {/* Action Buttons */}
         <div className="flex justify-between items-center pt-2 border-t border-gray-100 ml-13">
           <div className="flex space-x-2">
             <button
@@ -180,10 +180,8 @@ const CreatePost = ({ userId, onPostCreated }) => {
               className="flex items-center space-x-2 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
               aria-label="Add media"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <span>Photo/Video</span>
+              <FiImage className="h-5 w-5 text-teal-500" />
+              <span>Add Photo/Video</span>
             </button>
 
             <input
@@ -210,8 +208,8 @@ const CreatePost = ({ userId, onPostCreated }) => {
               disabled={uploading || (!content.trim() && media.length === 0)}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 uploading || (!content.trim() && media.length === 0)
-                  ? 'bg-blue-200 text-white cursor-not-allowed'
-                  : 'bg-blue-500 text-white hover:bg-blue-600 shadow-sm'
+                  ? 'bg-teal-200 text-white cursor-not-allowed'
+                  : 'bg-teal-500 text-white hover:bg-teal-600 shadow-sm'
               }`}
               aria-busy={uploading}
             >

@@ -5,7 +5,7 @@ const PostCardWithReactions = ({ post, userId, userName, token, onUpdate, showCo
   const [isCommenting, setIsCommenting] = useState(false);
   const [commentError, setCommentError] = useState(null);
   const [showComments, setShowComments] = useState(false);
-  const reactionOptions = ["👍", "😂", "❤️", "😮", "😢", "😡"];
+  const reactionOptions = ["❤️", "👍", "😂", "😮", "😢", "😡"];
 
   const handleReact = async (emoji) => {
     try {
@@ -114,6 +114,18 @@ const PostCardWithReactions = ({ post, userId, userName, token, onUpdate, showCo
       role="region"
       aria-label="Post card with reactions"
     >
+      {/* Header with Profile Picture and Username */}
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 rounded-full bg-gray-300 overflow-hidden">
+          <img
+            src={`https://ui-avatars.com/api/?name=${userName}&size=40`}
+            alt={`${userName}'s profile picture`}
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <span className="text-gray-900 text-base font-semibold">{userName}</span>
+      </div>
+
       {post.mediaUrls?.length > 0 && (
         <div
           className="bg-white border border-gray-200 rounded-lg p-4 mb-4"
@@ -241,14 +253,14 @@ const PostCardWithReactions = ({ post, userId, userName, token, onUpdate, showCo
             <div className="flex justify-end gap-3">
               <button
                 onClick={onEdit}
-                className="text-sm px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 hover:scale-105 transition-transform"
+                className="text-sm px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 hover:scale-105 transition-transform"
                 aria-label="Edit post"
               >
                 Edit
               </button>
               <button
                 onClick={onDelete}
-                className="text-sm px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 hover:scale-105 transition-transform"
+                className="text-sm px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 hover:scale-105 transition-transform"
                 aria-label="Delete post"
               >
                 Delete
