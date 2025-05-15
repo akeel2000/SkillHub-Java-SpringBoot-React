@@ -1,15 +1,31 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+/**
+ * AddStory component allows users to create a new story with text and media.
+ * Uses a light theme to align with Home and PostCardWithReactions components.
+ */
 const AddStory = () => {
   const navigate = useNavigate();
   const [media, setMedia] = useState(null);
   const [text, setText] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState(null);
 
+  /**
+   * Handles file selection for media (image/video).
+   * @param {Event} e - File input change event
+   */
   const handleFileChange = (e) => {
     setMedia(e.target.files[0]);
+    setError(null);
   };
 
+  /**
+   * Submits the story via API with validation and error handling.
+   * Requires at least text or media.
+   * @param {Event} e - Form submit event
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
@@ -22,11 +38,19 @@ const AddStory = () => {
       return;
     }
 
+    if (!text.trim() && !media) {
+      setError("Please add text or media to your story");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError(null);
+
     const formData = new FormData();
     formData.append("email", email);
     formData.append("userId", userId);
     if (media) formData.append("media", media);
-    if (text) formData.append("text", text);
+    if (text) formData.append("text", text.trim());
 
     try {
       const res = await fetch("http://localhost:8080/api/stories", {
@@ -39,38 +63,25 @@ const AddStory = () => {
         alert("Story added successfully!");
         navigate("/home");
       } else {
-        alert("Failed to add story");
+        throw new Error("Failed to add story");
       }
     } catch (err) {
-      alert("Error submitting story");
+      setError("Error submitting story");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 relative overflow-hidden">
-      {/* Floating Background Elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        {[...Array(8)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-16 h-16 border-4 border-opacity-10 border-cyan-300 rounded-full"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animation: `float ${10 + i * 2}s infinite linear`,
-              transform: `scale(${0.5 + Math.random() * 1.5})`,
-            }}
-          />
-        ))}
-      </div>
-
+    <div className="min-h-screen bg-gray-100 relative overflow-hidden">
       {/* Main Content */}
       <div className="relative z-10 flex items-center justify-center min-h-screen p-6">
-        <div className="bg-gradient-to-br from-purple-800/50 to-blue-800/50 backdrop-blur-xl border border-cyan-300/20 rounded-3xl shadow-2xl w-full max-w-lg p-8 animate-fadeInUp relative">
+        <div className="bg-gray-50 border border-gray-200 rounded-3xl shadow-md w-full max-w-lg p-8">
           {/* Close Button */}
           <button
             onClick={() => navigate("/home")}
-            className="absolute top-4 right-4 text-cyan-300 hover:text-cyan-100 transition-colors z-20"
+            className="absolute top-4 right-4 text-gray-500 hover:text-gray-900 transition-colors"
+            aria-label="Close story creation"
           >
             <svg
               className="w-8 h-8"
@@ -87,25 +98,33 @@ const AddStory = () => {
             </svg>
           </button>
 
-          <h2 className="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+          <h2 className="text-3xl font-bold mb-6 text-center text-gray-900">
             Create Story
           </h2>
-          
+
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="relative group">
+            <div className="relative">
               <textarea
                 value={text}
-                onChange={(e) => setText(e.target.value)}
+                onChange={(e) => {
+                  setText(e.target.value);
+                  setError(null);
+                }}
                 placeholder="Share your story..."
-                className="w-full px-4 py-3 bg-purple-900/30 border-2 border-cyan-300/20 rounded-xl text-cyan-100 placeholder-cyan-200/50 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition-all resize-none"
+                className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:border-teal-400 focus:ring-2 focus:ring-teal-400 transition-all resize-none"
                 rows="4"
+                aria-label="Story text input"
               />
-              <div className="absolute inset-0 -z-10 rounded-xl bg-gradient-to-r from-cyan-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+              {error && (
+                <p className="text-xs text-red-500 mt-1" aria-live="polite">
+                  {error}
+                </p>
+              )}
             </div>
 
-            <div className="relative group">
-              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-cyan-300/20 rounded-xl cursor-pointer hover:border-cyan-400/40 transition-all">
-                <div className="flex flex-col items-center text-cyan-300/80">
+            <div className="relative">
+              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-teal-400 transition-all">
+                <div className="flex flex-col items-center text-gray-500">
                   <svg className="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
@@ -118,31 +137,30 @@ const AddStory = () => {
                   accept="image/*,video/*"
                   onChange={handleFileChange}
                   className="hidden"
+                  aria-label="Upload story media"
                 />
               </label>
             </div>
 
             <button
               type="submit"
-              className="w-full bg-gradient-to-br from-cyan-500 to-blue-600 text-white font-bold py-3 rounded-xl shadow-2xl hover:shadow-3xl transform transition-all duration-300 hover:-translate-y-1 hover:scale-105 active:scale-95"
+              className="w-full bg-teal-400 text-white font-bold py-3 rounded-xl hover:bg-teal-500 hover:scale-105 transition-all disabled:opacity-50"
+              disabled={isSubmitting}
+              aria-label="Publish story"
             >
-              Publish Story
+              {isSubmitting ? "Publishing..." : "Publish Story"}
             </button>
           </form>
         </div>
       </div>
 
       <style jsx global>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-20px) rotate(10deg); }
-        }
         @keyframes fadeInUp {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
         }
         .animate-fadeInUp {
-          animation: fadeInUp 1s ease-out forwards;
+          animation: fadeInUp 0.5s ease-out forwards;
         }
       `}</style>
     </div>

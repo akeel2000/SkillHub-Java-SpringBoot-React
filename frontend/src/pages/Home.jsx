@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
-
 import CreatePost from "../components/CreatePost";
 import EditPostModal from "../components/EditPostModal";
 import PostCard from "../components/PostCard";
 import PostCardWithReactions from "../components/PostCardWithReactions";
 
-
-
-
+/**
+ * Home component displays the main social media feed with stories, posts, and modals.
+ * Integrates PostCardWithReactions for posts with a light theme and user interactions.
+ */
 const Home = () => {
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
@@ -19,15 +19,17 @@ const Home = () => {
   const [showEditStoryModal, setShowEditStoryModal] = useState(false);
   const [editedText, setEditedText] = useState("");
   const [newImage, setNewImage] = useState(null);
-  const navigate = useNavigate();
   const [editingPost, setEditingPost] = useState(null);
+  const navigate = useNavigate();
 
-
-
+  /**
+   * Utility for authenticated API requests with token handling.
+   * Redirects to login if token is missing.
+   */
   const authFetch = async (url, options = {}) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      navigate("/login"); // redirect if missing
+      navigate("/login");
       return;
     }
     return fetch(url, {
@@ -39,10 +41,13 @@ const Home = () => {
     });
   };
 
-
+  /**
+   * Deletes a post via API and updates the UI.
+   * @param {string} postId - ID of the post to delete
+   */
   const handleDelete = async (postId) => {
     if (!window.confirm("Are you sure you want to delete this post?")) return;
-  
+
     try {
       const res = await fetch(`http://localhost:8080/api/posts/${postId}`, {
         method: "DELETE",
@@ -52,31 +57,52 @@ const Home = () => {
       });
       if (res.ok) {
         alert("Post deleted");
-        // Remove from UI:
-        setPosts(prev => prev.filter(p => p.id !== postId));
+        setPosts((prev) => prev.filter((p) => p.id !== postId));
+      } else {
+        throw new Error();
       }
     } catch (err) {
       alert("Failed to delete post");
     }
   };
-  
+
+  /**
+   * Opens the edit modal for a post.
+   * @param {Object} post - Post to edit
+   */
   const handleEditPost = (post) => {
-    setEditingPost(post); // Only open the EditPostModal
+    setEditingPost(post);
   };
 
+  /**
+   * Updates a single post in the state after reactions/comments.
+   * @param {Object} updatedPost - Updated post data
+   */
+  const handlePostUpdate = async (postId) => {
+    try {
+      const res = await authFetch(`http://localhost:8080/api/posts/${postId}`);
+      if (res.ok) {
+        const updatedPost = await res.json();
+        setPosts((prev) => prev.map((p) => (p.id === updatedPost.id ? updatedPost : p)));
+      }
+    } catch (error) {
+      console.error("Failed to update post", error);
+    }
+  };
 
-
-
+  /**
+   * Fetches user data on mount and redirects to login if invalid.
+   */
   useEffect(() => {
     const fetchUser = async () => {
       const token = localStorage.getItem("token");
       const email = localStorage.getItem("userEmail");
-  
+
       if (!token || !email) {
         navigate("/login");
         return;
       }
-  
+
       try {
         const res = await authFetch(`http://localhost:8080/api/auth/user?email=${email}`);
         if (res.ok) {
@@ -87,35 +113,37 @@ const Home = () => {
           throw new Error();
         }
       } catch {
-        localStorage.clear(); // clear invalid token
+        localStorage.clear();
         alert("Failed to load user");
         navigate("/login");
       }
     };
-  
+
     fetchUser();
   }, [navigate]);
-  
- 
 
- // ✅ Move this OUTSIDE of useEffect
-const fetchPosts = async () => {
-  try {
-    const res = await authFetch("http://localhost:8080/api/posts");
-    if (res.ok) {
-      const data = await res.json();
-      setPosts(data);
+  /**
+   * Fetches all posts on mount.
+   */
+  const fetchPosts = async () => {
+    try {
+      const res = await authFetch("http://localhost:8080/api/posts");
+      if (res.ok) {
+        const data = await res.json();
+        setPosts(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch posts", error);
     }
-  } catch (error) {
-    console.error("Failed to fetch posts", error);
-  }
-};
+  };
 
-// ✅ Use inside useEffect
-useEffect(() => {
-  fetchPosts();
-}, []);
+  useEffect(() => {
+    fetchPosts();
+  }, []);
 
+  /**
+   * Fetches stories on mount.
+   */
   useEffect(() => {
     const fetchStories = async () => {
       try {
@@ -129,6 +157,9 @@ useEffect(() => {
     fetchStories();
   }, []);
 
+  /**
+   * Updates story view count when a story is selected.
+   */
   useEffect(() => {
     if (selectedStory && !viewCountUpdated) {
       const updateViewCount = async () => {
@@ -146,32 +177,45 @@ useEffect(() => {
     }
   }, [selectedStory, viewCountUpdated]);
 
+  /**
+   * Closes the story modal and resets view count state.
+   */
   const closeModal = () => {
     setSelectedStory(null);
     setViewCountUpdated(false);
   };
 
+  /**
+   * Opens the edit story modal with pre-filled data.
+   * @param {Object} story - Story to edit
+   */
   const handleEditClick = (story) => {
     setSelectedStory(story);
     setEditedText(story.text);
     setShowEditStoryModal(true);
   };
 
+  /**
+   * Handles image file selection for story updates.
+   */
   const handleImageChange = (e) => {
     if (e.target.files[0]) {
       setNewImage(e.target.files[0]);
     }
   };
 
+  /**
+   * Updates a story via API with text and optional image.
+   */
   const handleUpdateStory = async () => {
     try {
       const formData = new FormData();
       formData.append("text", editedText);
-      formData.append("userId", user.id); // ✅ Add this line!
+      formData.append("userId", user.id);
       if (newImage) {
         formData.append("media", newImage);
       }
-  
+
       const res = await fetch(`http://localhost:8080/api/stories/${selectedStory.id}`, {
         method: "PUT",
         headers: {
@@ -179,7 +223,7 @@ useEffect(() => {
         },
         body: formData,
       });
-  
+
       if (res.ok) {
         window.location.reload();
       } else {
@@ -190,8 +234,10 @@ useEffect(() => {
       alert("Error updating story");
     }
   };
-  
 
+  /**
+   * Adds Escape key listener to close story modal.
+   */
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === "Escape") closeModal();
@@ -202,28 +248,31 @@ useEffect(() => {
 
   if (!user)
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
-        <div className="animate-pulse text-cyan-400 text-xl">Loading Profile...</div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="animate-pulse text-teal-600 text-xl">Loading Profile...</div>
       </div>
     );
 
+  /**
+   * Modal for editing a story with text and image inputs.
+   */
   const EditModal = () => (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
-      <div className="bg-gradient-to-br from-purple-800/50 to-blue-800/50 backdrop-blur-xl rounded-2xl border border-cyan-300/20 p-6 max-w-xl w-full mx-4 shadow-2xl">
-        <h3 className="text-2xl font-bold mb-4 text-cyan-400">Edit Story</h3>
-        
+      <div className="bg-gray-50 rounded-2xl border border-gray-200 p-6 max-w-xl w-full mx-4 shadow-md">
+        <h3 className="text-2xl font-bold mb-4 text-gray-900">Edit Story</h3>
+
         <div className="space-y-4">
           <textarea
             value={editedText}
             onChange={(e) => setEditedText(e.target.value)}
-            className="w-full px-4 py-2 bg-purple-900/30 border-2 border-cyan-300/20 rounded-xl text-cyan-100 placeholder-cyan-200/50 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition-all"
+            className="w-full px-4 py-2 bg-gray-100 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:border-teal-400"
             rows="4"
             placeholder="Enter your story text..."
           />
-          
+
           <div className="relative group">
-            <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-cyan-300/20 rounded-xl cursor-pointer hover:border-cyan-400/40 transition-all">
-              <div className="flex flex-col items-center text-cyan-300/80">
+            <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-teal-400 transition-all">
+              <div className="flex flex-col items-center text-gray-500">
                 <svg className="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
@@ -244,23 +293,23 @@ useEffect(() => {
             <div className="relative">
               <img
                 src={`http://localhost:8080${selectedStory.mediaUrl}`}
-                alt="Current"
-                className="w-full h-32 object-cover rounded-xl border-2 border-cyan-300/20"
+                alt="Current story image"
+                className="w-full h-32 object-cover rounded-xl border border-gray-200"
               />
-              <span className="text-cyan-300 text-sm mt-1">Current Image</span>
+              <span className="text-gray-500 text-sm mt-1">Current Image</span>
             </div>
           )}
 
           <div className="flex justify-end space-x-4 mt-6">
             <button
               onClick={() => setShowEditStoryModal(false)}
-              className="px-6 py-2 bg-red-500/10 text-red-300 rounded-xl hover:bg-red-500/20 transition-colors"
+              className="px-6 py-2 bg-gray-200 text-gray-900 rounded-xl hover:bg-gray-300 transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handleUpdateStory}
-              className="px-6 py-2 bg-gradient-to-br from-cyan-500 to-blue-600 text-white rounded-xl shadow hover:shadow-lg transition-all"
+              className="px-6 py-2 bg-teal-400 text-white rounded-xl hover:bg-teal-500 transition-all"
             >
               Update Story
             </button>
@@ -271,35 +320,33 @@ useEffect(() => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 relative overflow-hidden">
+    <div className="min-h-screen bg-gray-100 relative overflow-hidden">
       <Header user={user} />
 
-      <div className="p-6 max-w-6xl mx-auto mt-12">
+      <main role="main" className="p-6 max-w-6xl mx-auto mt-12">
         {/* Stories Section */}
-        <div className="mt-6 relative z-10">
-          <h2 className="text-xl font-bold mb-4 text-cyan-400 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-            Recent Stories
-          </h2>
+        <section aria-label="Recent stories">
+          <h2 className="text-xl font-bold mb-4 text-gray-900">Recent Stories</h2>
           <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
             {stories.map((story, index) => (
               <div
                 key={index}
-                className="w-32 h-56 flex flex-col items-center text-center bg-gradient-to-br from-purple-800/50 to-blue-800/50 backdrop-blur-sm rounded-2xl p-1 border border-cyan-300/20 shadow-2xl transform transition-all duration-300 hover:scale-105 flex-shrink-0 cursor-pointer"
+                className="w-32 h-56 flex flex-col items-center text-center bg-gray-50 rounded-2xl p-1 border border-gray-200 shadow-md hover:scale-105 transition-all flex-shrink-0 cursor-pointer"
                 onClick={() => setSelectedStory(story)}
               >
                 <div className="relative h-40 w-full rounded-xl overflow-hidden group">
                   {story.mediaUrl ? (
                     <img
                       src={`http://localhost:8080${story.mediaUrl}`}
-                      alt="Story"
-                      className="w-full h-full object-cover transform transition-transform group-hover:scale-110"
+                      alt={`Story by ${story.userName}`}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform"
                       onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.parentElement.classList.add('bg-gradient-to-br', 'from-cyan-500', 'to-purple-600');
+                        e.target.style.display = "none";
+                        e.target.parentElement.classList.add("bg-teal-400");
                       }}
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-cyan-300 p-4 text-sm bg-purple-900/30">
+                    <div className="w-full h-full flex items-center justify-center text-gray-500 p-4 text-sm bg-gray-100">
                       {story.text}
                     </div>
                   )}
@@ -308,110 +355,103 @@ useEffect(() => {
                   {story.userProfilePic && (
                     <img
                       src={`http://localhost:8080${story.userProfilePic}`}
-                      alt="User"
-                      className="w-8 h-8 rounded-full border-2 border-white shadow-md object-cover"
+                      alt={`${story.userName}'s profile picture`}
+                      className="w-8 h-8 rounded-full border-2 border-gray-200 shadow-md object-cover"
                     />
                   )}
-                  <p className="text-xs text-cyan-300 font-medium mt-1 truncate w-full">
+                  <p className="text-xs text-gray-900 font-medium mt-1 truncate w-full">
                     {story.userName}
                   </p>
-                  <p className="text-xs text-cyan-400 mt-1">{story.viewedBy?.length || 0} views</p>
+                  <p className="text-xs text-gray-500 mt-1">{story.viewedBy?.length || 0} views</p>
                 </div>
               </div>
             ))}
             <button
               onClick={() => navigate("/add-story")}
-              className="w-32 h-56 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 backdrop-blur-sm rounded-2xl border-2 border-dashed border-cyan-300/30 flex items-center justify-center text-cyan-400 hover:text-cyan-300 transition-all transform hover:scale-105 flex-shrink-0"
+              className="w-32 h-56 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center text-teal-400 hover:text-teal-500 transition-all hover:scale-105 flex-shrink-0"
+              aria-label="Add a new story"
             >
-              <div className="text-4xl bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                +
-              </div>
+              <div className="text-4xl">+</div>
             </button>
           </div>
-        </div>
+        </section>
 
         {/* Posts Section */}
-        <div className="mt-8 relative z-10">
-          <h2 className="text-xl font-bold mb-6 text-cyan-400 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-            Community Posts
-          </h2>
-
-
-          
-<CreatePost userId={user.id} onPostCreated={(newPost) => setPosts([newPost, ...posts])} />
+        <section aria-label="Community posts" className="mt-8">
+          <h2 className="text-xl font-bold mb-6 text-gray-900">Community Posts</h2>
+          {/* CreatePost component for adding new posts */}
+          <CreatePost userId={user.id} onPostCreated={(newPost) => setPosts([newPost, ...posts])} />
           <div className="space-y-6">
             {posts.length > 0 ? (
               posts.map((post) => (
-<PostCardWithReactions
-  key={post.id}
-  post={post}
-  userId={user.id}
-  userName={user.fullName}
-  token={localStorage.getItem("token")}
-  onUpdate={fetchPosts}
-  onEdit={() => setEditingPost(post)}
-  onDelete={() => handleDelete(post.id)}
-  showControls={post.userId === user.id}
-
-
-
-
-                  className="bg-gradient-to-br from-purple-800/50 to-blue-800/50 backdrop-blur-sm rounded-2xl border border-cyan-300/20 shadow-2xl transform transition-all hover:scale-[1.01] hover:shadow-3xl"
+                <PostCardWithReactions
+                  key={post.id}
+                  post={{
+                    ...post,
+                    profilePicUrl: post.profilePicUrl || "https://via.placeholder.com/40", // Fallback for profile picture
+                  }}
+                  userId={user.id}
+                  userName={user.fullName}
+                  token={localStorage.getItem("token")}
+                  onUpdate={() => handlePostUpdate(post.id)} // Optimized single-post update
+                  onEdit={() => handleEditPost(post)}
+                  onDelete={() => handleDelete(post.id)}
+                  showControls={post.userId === user.id}
+                  className="rounded-xl shadow-md" // Minimal styling to complement light theme
                 />
               ))
             ) : (
-              <div className="bg-gradient-to-br from-purple-800/50 to-blue-800/50 backdrop-blur-sm rounded-2xl p-6 border border-cyan-300/20 text-cyan-300 text-center">
+              <div className="bg-gray-50 rounded-xl p-6 border border-gray-200 text-gray-500 text-center">
                 No posts available yet
               </div>
-              
             )}
           </div>
-        </div>
+        </section>
 
-        
+        {/* Edit Post Modal */}
         {editingPost && (
-  <EditPostModal
-    post={editingPost}
-    onClose={() => setEditingPost(null)}
-    onUpdate={(updated) => {
-      setPosts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
-      setEditingPost(null);
-    }}
-  />
-      )}
-
-      </div>
+          <EditPostModal
+            post={editingPost}
+            onClose={() => setEditingPost(null)}
+            onUpdate={(updated) => {
+              setPosts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+              setEditingPost(null);
+            }}
+          />
+        )}
+      </main>
 
       {/* Story View Modal */}
       {selectedStory && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center"
           onClick={closeModal}
         >
-          <div 
-            className="bg-gradient-to-br from-purple-800/50 to-blue-800/50 backdrop-blur-xl rounded-2xl border border-cyan-300/20 p-6 max-w-2xl w-full mx-4 shadow-2xl relative"
+          <div
+            className="bg-gray-50 rounded-2xl border border-gray-200 p-6 max-w-2xl w-full mx-4 shadow-md"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={closeModal}
-              className="absolute top-4 right-4 text-cyan-300 hover:text-cyan-100 text-2xl bg-cyan-500/10 rounded-full w-8 h-8 flex items-center justify-center transition-all hover:bg-cyan-500/20"
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-900 bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center transition-all"
+              aria-label="Close story modal"
             >
-              &times;
+              ×
             </button>
 
-            <div className="relative h-[70vh] w-full rounded-xl overflow-hidden group">
+            <div className="relative h-[70vh] w-full rounded-xl overflow-hidden">
               {selectedStory.mediaUrl ? (
                 <img
                   src={`http://localhost:8080${selectedStory.mediaUrl}`}
-                  alt="Story"
+                  alt={`Story by ${selectedStory.userName}`}
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.parentElement.classList.add('bg-gradient-to-br', 'from-cyan-500', 'to-purple-600');
+                    e.target.style.display = "none";
+                    e.target.parentElement.classList.add("bg-teal-400");
                   }}
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-cyan-300 p-4 text-xl bg-purple-900/30">
+                <div className="w-full h-full flex items-center justify-center text-gray-500 p-4 text-xl bg-gray-100">
                   {selectedStory.text}
                 </div>
               )}
@@ -420,16 +460,15 @@ useEffect(() => {
             <div className="flex items-center justify-between mt-4">
               <div className="flex items-center space-x-3">
                 <div className="relative">
-                  <div className="absolute inset-0 bg-cyan-400/20 blur-xl rounded-full" />
                   <img
-                    src={`http://localhost:8080${selectedStory.userProfilePic}`}
-                    alt="User"
-                    className="w-10 h-10 rounded-full border-2 border-cyan-300/50 relative z-10"
+                    src={`http://localhost:8080${selectedStory.userProfilePic || "/default-avatar.png"}`}
+                    alt={`${selectedStory.userName}'s profile picture`}
+                    className="w-10 h-10 rounded-full border-2 border-gray-200"
                   />
                 </div>
                 <div>
-                  <p className="text-cyan-100 font-medium">{selectedStory.userName}</p>
-                  <p className="text-cyan-400 text-sm">{selectedStory.viewedBy?.length || 0} views</p>
+                  <p className="text-gray-900 font-medium">{selectedStory.userName}</p>
+                  <p className="text-gray-500 text-sm">{selectedStory.viewedBy?.length || 0} views</p>
                 </div>
               </div>
 
@@ -440,7 +479,7 @@ useEffect(() => {
                       e.stopPropagation();
                       handleEditClick(selectedStory);
                     }}
-                    className="px-4 py-2 bg-cyan-500/10 text-cyan-300 rounded-lg hover:bg-cyan-500/20 transition-colors"
+                    className="px-4 py-2 bg-teal-400 text-white rounded-lg hover:bg-teal-500 transition-colors"
                   >
                     Edit
                   </button>
@@ -456,14 +495,12 @@ useEffect(() => {
                       );
                       window.location.reload();
                     }}
-                    className="px-4 py-2 bg-red-500/10 text-red-300 rounded-lg hover:bg-red-500/20 transition-colors"
+                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
                   >
                     Delete
                   </button>
                 </div>
               )}
-
-          
             </div>
           </div>
         </div>
@@ -471,7 +508,6 @@ useEffect(() => {
 
       {/* Edit Story Modal */}
       {showEditStoryModal && <EditModal />}
-      
 
       <style jsx global>{`
         @keyframes float {
