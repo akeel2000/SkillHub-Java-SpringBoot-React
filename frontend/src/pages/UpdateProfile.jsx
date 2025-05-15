@@ -1,18 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
+// UpdateProfile component allows users to update their profile details and upload profile/cover images
 const UpdateProfile = () => {
   const navigate = useNavigate();
-  const email = localStorage.getItem("userEmail");
-  const token = localStorage.getItem("token");
+  const email = localStorage.getItem("userEmail"); // Get user email from local storage
+  const token = localStorage.getItem("token"); // Get auth token from local storage
 
+  // State for form fields
   const [form, setForm] = useState({
     name: "",
     lastName: "",
   });
+  // State for profile and cover images
   const [profilePic, setProfilePic] = useState(null);
   const [coverPic, setCoverPic] = useState(null);
 
+  // Fetch user details on mount and populate form
   useEffect(() => {
     fetch(`http://localhost:8080/api/auth/user?email=${email}`, {
       headers: { Authorization: `Bearer ${token}` }
@@ -21,8 +25,10 @@ const UpdateProfile = () => {
       .then(data => setForm({ name: data.name, lastName: data.lastName }));
   }, [email, token]);
 
+  // Handle input changes for text fields
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
+  // Handle form submission, including file uploads
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -52,6 +58,7 @@ const UpdateProfile = () => {
   };
 
   return (
+    // Main background and floating elements for visual effect
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 relative overflow-hidden">
       {/* Floating Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -72,7 +79,7 @@ const UpdateProfile = () => {
       {/* Main Content */}
       <div className="relative z-10 flex items-center justify-center min-h-screen p-6">
         <div className="bg-gradient-to-br from-purple-800/50 to-blue-800/50 backdrop-blur-xl border border-cyan-300/20 rounded-3xl shadow-2xl w-full max-w-lg p-8 animate-fadeInUp">
-          {/* Close Button */}
+          {/* Close Button to return to profile */}
           <button
             onClick={() => navigate('/profile')}
             className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full border-2 border-cyan-300/20 text-cyan-300 hover:border-cyan-400 hover:text-cyan-400 hover:bg-cyan-400/10 transition-all"
@@ -81,11 +88,14 @@ const UpdateProfile = () => {
             ×
           </button>
 
+          {/* Title */}
           <h2 className="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
             Update Profile
           </h2>
           
+          {/* Profile Update Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* First Name Input */}
             <div className="relative group">
               <input
                 name="name"
@@ -97,6 +107,7 @@ const UpdateProfile = () => {
               <div className="absolute inset-0 -z-10 rounded-xl bg-gradient-to-r from-cyan-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
 
+            {/* Last Name Input */}
             <div className="relative group">
               <input
                 name="lastName"
@@ -108,6 +119,7 @@ const UpdateProfile = () => {
               <div className="absolute inset-0 -z-10 rounded-xl bg-gradient-to-r from-cyan-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
 
+            {/* Profile Picture Upload */}
             <div className="relative group">
               <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-cyan-300/20 rounded-xl cursor-pointer hover:border-cyan-400/40 transition-all">
                 <div className="flex flex-col items-center text-cyan-300/80">
@@ -126,6 +138,7 @@ const UpdateProfile = () => {
               </label>
             </div>
 
+            {/* Cover Photo Upload */}
             <div className="relative group">
               <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-cyan-300/20 rounded-xl cursor-pointer hover:border-cyan-400/40 transition-all">
                 <div className="flex flex-col items-center text-cyan-300/80">
@@ -144,6 +157,7 @@ const UpdateProfile = () => {
               </label>
             </div>
 
+            {/* Submit Button */}
             <button
               type="submit"
               className="w-full bg-gradient-to-br from-cyan-500 to-blue-600 text-white font-bold py-3 rounded-xl shadow-2xl hover:shadow-3xl transform transition-all duration-300 hover:-translate-y-1 hover:scale-105 active:scale-95"
@@ -154,6 +168,7 @@ const UpdateProfile = () => {
         </div>
       </div>
 
+      {/* Animation styles for floating elements and fade-in effect */}
       <style jsx global>{`
         @keyframes float {
           0%, 100% { transform: translateY(0) rotate(0deg); }
