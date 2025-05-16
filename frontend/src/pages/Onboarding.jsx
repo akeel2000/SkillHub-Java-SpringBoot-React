@@ -1,12 +1,14 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
+// Onboarding component displays animated intro and "Get Started" button
 const Onboarding = () => {
   const navigate = useNavigate();
 
   return (
+    // Main container with animated background and centered content
     <div className="relative min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 px-6 py-10 overflow-hidden">
-      {/* Animated background */}
+      {/* Animated floating background circles */}
       <div className="absolute inset-0 overflow-hidden">
         {[...Array(8)].map((_, i) => (
           <div
@@ -22,20 +24,26 @@ const Onboarding = () => {
         ))}
       </div>
 
+      {/* Centered logo and animated tagline */}
       <div className="relative z-10 space-y-8 text-center">
+        {/* Animated SkillHub logo */}
         <h1 className="text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 animate-float">
           SkillHub
+          {/* Blurred gradient shadow behind logo */}
           <div className="absolute inset-0 transform -skew-y-6 translate-y-6 blur-3xl opacity-30 bg-gradient-to-r from-cyan-400 to-blue-500" />
         </h1>
 
+        {/* Tagline */}
         <p className="text-xl font-semibold text-cyan-300 animate-fade-in">
           Connect. Create. Collaborate.
         </p>
 
+        {/* Animated onboarding bubbles and message */}
         <div className="relative max-w-md mx-auto mt-8 animate-float">
           <div className="transform perspective-1000 rotate-x-6 rotate-y-6 transition-all duration-500">
             <div className="bg-gradient-to-br from-purple-800 to-blue-800 p-8 rounded-3xl shadow-2xl">
               <div className="space-y-6 text-cyan-100">
+                {/* Animated bubbles row 1 */}
                 <div className="flex justify-center items-center space-x-4">
                   <div className="w-12 h-12 bg-cyan-400 rounded-full animate-pulse" />
                   <div className="w-12 h-12 bg-blue-400 rounded-full animate-pulse delay-100" />
@@ -43,6 +51,7 @@ const Onboarding = () => {
                 </div>
                 <p className="text-lg">Share your skills</p>
                 <div className="h-1 bg-cyan-500/30 rounded-full" />
+                {/* Animated bubbles row 2 */}
                 <div className="flex justify-center items-center space-x-4">
                   <div className="w-12 h-12 bg-blue-400 rounded-full animate-pulse" />
                   <div className="w-12 h-12 bg-purple-400 rounded-full animate-pulse delay-100" />
@@ -54,6 +63,7 @@ const Onboarding = () => {
         </div>
       </div>
 
+      {/* Get Started button */}
       <div className="relative z-10 mt-12 w-full flex justify-center">
         <button
           onClick={() => navigate("/login")}
@@ -63,6 +73,7 @@ const Onboarding = () => {
         </button>
       </div>
 
+      {/* Custom CSS for floating, pulse, and fade-in animations */}
       <style jsx global>{`
         @keyframes float {
           0%, 100% { transform: translateY(0) rotateX(10deg) rotateY(10deg); }
