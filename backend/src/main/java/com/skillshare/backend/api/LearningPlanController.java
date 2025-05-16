@@ -46,13 +46,13 @@ public class LearningPlanController {
         plan.setId(id);
         return repo.save(plan);
     }
-//delete//
+    //delete
     @DeleteMapping("/{id}")
     public void delete(@PathVariable String id) {
         repo.deleteById(id);
     }
 
-    // 📌 //Extra Features  Add-resource//
+    //Extra Features  Add-resource//
     @PutMapping("/{id}/add-resource")
     public LearningPlan addResource(@PathVariable String id, @RequestBody String resource) {
         LearningPlan plan = repo.findById(id).orElse(null);
