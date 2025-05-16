@@ -96,7 +96,7 @@ const PostCardWithReactions = ({ post, userId, userName, token, onUpdate, showCo
         >
           <img
             src={fullUrl}
-            alt={`Post image ${index + 1}`}
+            alt={`Post ${index + 1}`}
             className="w-full aspect-[16/9] object-cover bg-gray-100"
             onError={(e) => (e.target.nextSibling.style.display = "block")}
           />
@@ -119,7 +119,7 @@ const PostCardWithReactions = ({ post, userId, userName, token, onUpdate, showCo
         <div className="w-10 h-10 rounded-full bg-gray-300 overflow-hidden">
           <img
             src={`https://ui-avatars.com/api/?name=${userName}&size=40`}
-            alt={`${userName}'s profile picture`}
+            alt={userName}
             className="w-full h-full object-cover"
           />
         </div>

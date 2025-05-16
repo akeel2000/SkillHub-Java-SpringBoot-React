@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FiX, FiImage, FiUpload, FiTrash2 } from "react-icons/fi";
+import { FiX, FiUpload, FiTrash2 } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 
 const EditPostModal = ({ post, onClose, onUpdate }) => {
