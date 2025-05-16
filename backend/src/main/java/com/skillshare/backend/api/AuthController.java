@@ -12,7 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -20,6 +19,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Controller for authentication and user profile management.
+ * Handles registration, login, profile updates, password changes, and more.
+ */
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -28,6 +31,8 @@ public class AuthController {
     @Autowired private PasswordEncoder encoder;
     @Autowired private JwtUtil jwtUtil;
 
+    //Register a new user.
+     
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest req) {
         if (userRepo.findByEmail(req.getEmail()) != null) {
@@ -45,6 +50,8 @@ public class AuthController {
         return ResponseEntity.ok("User registered");
     }
 
+    //Login endpoint, Returns JWT token if credentials are valid.
+     
     @PostMapping("/signin")
     public ResponseEntity<?> login(@RequestBody LoginRequest req) {
         if (req.getEmail() == null || req.getPassword() == null) {
@@ -58,6 +65,8 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
     }
 
+    //Update user profile information and images.
+     
     @PutMapping("/update")
     public ResponseEntity<?> updateUser(
             @RequestParam String email,
@@ -98,6 +107,8 @@ public class AuthController {
         }
     }
 
+    //Delete a user by email
+     
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteUser(@RequestParam String email) {
         User user = userRepo.findByEmail(email);
@@ -114,6 +125,8 @@ public class AuthController {
         return ResponseEntity.ok("User deleted");
     }
 
+    //Save user categories/interests
+     
     @PostMapping("/categories")
     public ResponseEntity<?> saveCategories(@RequestParam String email, @RequestBody List<String> categories) {
         User user = userRepo.findByEmail(email);
@@ -123,6 +136,8 @@ public class AuthController {
         return ResponseEntity.ok("Categories updated");
     }
 
+    //Get user by email
+     
     @GetMapping("/user")
     public ResponseEntity<?> getUser(@RequestParam String email) {
         User user = userRepo.findByEmail(email);
@@ -130,6 +145,8 @@ public class AuthController {
         return ResponseEntity.ok(user);
     }
 
+    //Get public profile by user ID.
+     
     @GetMapping("/public-profile/{id}")
     public ResponseEntity<?> getUserById(@PathVariable String id) {
         return userRepo.findById(id)
@@ -137,77 +154,83 @@ public class AuthController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found"));
     }
 
+    //Logout endpoint (clears Spring Security context).
+    
     @GetMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
         SecurityContextHolder.clearContext();
         return ResponseEntity.ok("Logged out");
     }
 
-
-
+    //Search users by name (case-insensitive)
+     
     @GetMapping("/search")
-public ResponseEntity<?> searchUsers(@RequestParam String name) {
-    List<User> users = userRepo.findAll()
-        .stream()
-        .filter(u -> u.getName().toLowerCase().contains(name.toLowerCase()))
-        .collect(Collectors.toList());
-    return ResponseEntity.ok(users);
-}
+    public ResponseEntity<?> searchUsers(@RequestParam String name) {
+        List<User> users = userRepo.findAll()
+            .stream()
+            .filter(u -> u.getName().toLowerCase().contains(name.toLowerCase()))
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(users);
+    }
 
+    //Change user password
+     
+    @PutMapping("/change-password")
+    public ResponseEntity<?> changePassword(
+            @RequestParam String email,
+            @RequestParam String oldPassword,
+            @RequestParam String newPassword
+    ) {
+        User user = userRepo.findByEmail(email);
+        if (user == null)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
 
+        if (!encoder.matches(oldPassword, user.getPassword()))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect old password");
 
-@PutMapping("/change-password")
-public ResponseEntity<?> changePassword(
-        @RequestParam String email,
-        @RequestParam String oldPassword,
-        @RequestParam String newPassword
-) {
-    User user = userRepo.findByEmail(email);
-    if (user == null)
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        user.setPassword(encoder.encode(newPassword));
+        userRepo.save(user);
+        return ResponseEntity.ok("Password changed successfully");
+    }
 
-    if (!encoder.matches(oldPassword, user.getPassword()))
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect old password");
+    // Logout from all devices (invalidate all tokens).
+     
+    @PutMapping("/logout-all")
+    public ResponseEntity<?> logoutAllDevices(@RequestParam String email) {
+        User user = userRepo.findByEmail(email);
+        if (user == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
 
-    user.setPassword(encoder.encode(newPassword));
-    userRepo.save(user);
-    return ResponseEntity.ok("Password changed successfully");
-}
-@PutMapping("/logout-all")
-public ResponseEntity<?> logoutAllDevices(@RequestParam String email) {
-    User user = userRepo.findByEmail(email);
-    if (user == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        user.setTokenVersion(user.getTokenVersion() + 1); // invalidate all tokens
+        userRepo.save(user);
+        return ResponseEntity.ok("Logged out from all devices");
+    }
 
-    user.setTokenVersion(user.getTokenVersion() + 1); // invalidate all tokens
-    userRepo.save(user);
-    return ResponseEntity.ok("Logged out from all devices");
-}
+    //Deactivate user account (set status to "deactivated").
+     
+    @PutMapping("/deactivate")
+    public ResponseEntity<?> deactivate(@RequestParam String email) {
+        User user = userRepo.findByEmail(email);
+        if (user == null)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
 
+        user.setStatus("deactivated");
+        userRepo.save(user);
+        return ResponseEntity.ok("Account deactivated");
+    }
 
-@PutMapping("/deactivate")
-public ResponseEntity<?> deactivate(@RequestParam String email) {
-    User user = userRepo.findByEmail(email);
-    if (user == null)
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+    //Change user email address
 
-    user.setStatus("deactivated");
-    userRepo.save(user);
-    return ResponseEntity.ok("Account deactivated");
-}
+    @PutMapping("/change-email")
+    public ResponseEntity<?> changeEmail(@RequestParam String oldEmail, @RequestParam String newEmail) {
+        User user = userRepo.findByEmail(oldEmail);
+        if (user == null)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
 
-@PutMapping("/change-email")
-public ResponseEntity<?> changeEmail(@RequestParam String oldEmail, @RequestParam String newEmail) {
-    User user = userRepo.findByEmail(oldEmail);
-    if (user == null)
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        if (userRepo.findByEmail(newEmail) != null)
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("New email already in use");
 
-    if (userRepo.findByEmail(newEmail) != null)
-        return ResponseEntity.status(HttpStatus.CONFLICT).body("New email already in use");
-
-    user.setEmail(newEmail);
-    userRepo.save(user);
-    return ResponseEntity.ok("Email updated successfully");
-}
-
-
+        user.setEmail(newEmail);
+        userRepo.save(user);
+        return ResponseEntity.ok("Email updated successfully");
+    }
 }
