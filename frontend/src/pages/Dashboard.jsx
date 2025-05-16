@@ -1,9 +1,11 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
+// Dashboard component: main landing page after login
 const Dashboard = () => {
   const navigate = useNavigate();
 
+  // Card data for dashboard navigation
   const cards = [
     {
       title: " My Learning Plans",
@@ -28,10 +30,13 @@ const Dashboard = () => {
   ];
 
   return (
+    // Main background and dashboard layout
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-6 text-cyan-100">
       <div className="max-w-6xl mx-auto text-center">
+        {/* Dashboard title */}
         <h1 className="text-4xl font-bold mb-10">🚀 Welcome to Your Dashboard</h1>
 
+        {/* Navigation cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {cards.map((card, index) => (
             <div
@@ -46,6 +51,7 @@ const Dashboard = () => {
         </div>
       </div>
 
+      {/* Custom animation for floating effect (not currently used) */}
       <style jsx="true">{`
         @keyframes float {
           0%, 100% { transform: translateY(0) rotate(0deg); }

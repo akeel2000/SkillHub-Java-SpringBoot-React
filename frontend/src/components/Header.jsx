@@ -12,6 +12,7 @@ import {
   FiMenu
 } from "react-icons/fi";
 
+// Debounce utility to limit search API calls
 const debounce = (func, delay) => {
   let timeoutId;
   return (...args) => {
@@ -20,7 +21,9 @@ const debounce = (func, delay) => {
   };
 };
 
+// Header component: sidebar navigation, search, and profile access
 const Header = ({ user }) => {
+  // State for search input, results, errors, and mobile menu
   const [searchTerm, setSearchTerm] = useState("");
   const [results, setResults] = useState([]);
   const [searchError, setSearchError] = useState(null);
@@ -28,6 +31,7 @@ const Header = ({ user }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Close search results and sidebar when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (!e.target.closest(".search-box")) {
@@ -42,6 +46,7 @@ const Header = ({ user }) => {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
+  // Debounced search handler for user search
   const handleSearch = debounce(async () => {
     if (!searchTerm.trim()) {
       setSearchError("Please enter a search term");
@@ -64,10 +69,12 @@ const Header = ({ user }) => {
     }
   }, 300);
 
+  // Toggle mobile sidebar menu
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen((prev) => !prev);
   };
 
+  // Navigation links for sidebar
   const navLinks = [
     { label: "Dashboard", route: "/dashboard", icon: <FiGrid className="mr-3" /> },
     { label: "Home", route: "/home", icon: <FiHome className="mr-3" /> },
@@ -88,7 +95,7 @@ const Header = ({ user }) => {
         {isMobileMenuOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
       </button>
 
-      {/* Sidebar */}
+      {/* Sidebar Navigation */}
       <div
         className={`fixed top-0 left-0 h-screen bg-gray-50 border-r border-gray-200 shadow-md z-40 transition-transform duration-300 ${
           isMobileMenuOpen ? "translate-x-0 w-full sm:w-64" : "-translate-x-full md:translate-x-0 md:w-64"
@@ -116,7 +123,7 @@ const Header = ({ user }) => {
             </h1>
           </div>
 
-          {/* Search Container */}
+          {/* Search Box */}
           <div
             className="bg-white border border-gray-200 rounded-lg p-4 relative search-box"
             role="region"
@@ -139,6 +146,7 @@ const Header = ({ user }) => {
               <FiSearch className="w-5 h-5 mr-3 text-gray-500" />
             </div>
 
+            {/* Search Results Dropdown */}
             {(results.length > 0 || searchError) && (
               <div
                 className="absolute top-full left-0 mt-2 bg-gray-50 rounded-lg shadow-md w-full max-h-60 overflow-y-auto border border-gray-200 z-50"
@@ -175,7 +183,7 @@ const Header = ({ user }) => {
             )}
           </div>
 
-          {/* Navigation Links Container */}
+          {/* Navigation Links */}
           <div
             className="bg-white border border-gray-200 rounded-lg p-4 flex-1 overflow-y-auto"
             role="region"
@@ -200,7 +208,7 @@ const Header = ({ user }) => {
             ))}
           </div>
 
-          {/* Profile Container */}
+          {/* User Profile Section */}
           {user && (
             <div
               className="bg-white border border-gray-200 rounded-lg p-4"
@@ -232,7 +240,7 @@ const Header = ({ user }) => {
         </div>
       </div>
 
-      {/* Main Content Wrapper */}
+      {/* Main Content Wrapper (for page content) */}
       <div className="min-h-screen ml-0 md:ml-64 overflow-y-auto pt-16 md:pt-0 z-10">
         {/* Placeholder for child components */}
       </div>
@@ -246,6 +254,7 @@ const Header = ({ user }) => {
         ></div>
       )}
 
+      {/* Global styles for sidebar and scroll behavior */}
       <style jsx global>{`
         html {
           scroll-behavior: smooth;
