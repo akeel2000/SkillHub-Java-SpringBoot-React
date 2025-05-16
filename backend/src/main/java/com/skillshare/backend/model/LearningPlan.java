@@ -7,6 +7,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Date;
 import java.util.List;
 
+ // Model class representing a Learning Plan document in MongoDB.
+
 @Data
 @Document(collection = "learning_plans")
 public class LearningPlan {
