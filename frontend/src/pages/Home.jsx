@@ -16,9 +16,13 @@ const Home = () => {
   const [showEditStoryModal, setShowEditStoryModal] = useState(false);
   const [editedText, setEditedText] = useState("");
   const [newImage, setNewImage] = useState(null);
+
+  // Post editing state
   const [editingPost, setEditingPost] = useState(null);
+
   const navigate = useNavigate();
 
+  // Helper for authenticated fetch requests
   const authFetch = async (url, options = {}) => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -34,6 +38,7 @@ const Home = () => {
     });
   };
 
+  // Delete a post by ID
   const handleDelete = async (postId) => {
     if (!window.confirm("Are you sure you want to delete this post?")) return;
 
@@ -52,10 +57,12 @@ const Home = () => {
     }
   };
 
+  // Open post edit modal
   const handleEditPost = (post) => {
     setEditingPost(post);
   };
 
+  // Update a post after editing
   const handlePostUpdate = async (postId) => {
     try {
       const res = await authFetch(`http://localhost:8080/api/posts/${postId}`);
@@ -68,6 +75,7 @@ const Home = () => {
     }
   };
 
+  // Fetch user profile on mount
   useEffect(() => {
     const fetchUser = async () => {
       const token = localStorage.getItem("token");
@@ -94,6 +102,7 @@ const Home = () => {
     fetchUser();
   }, [navigate]);
 
+  // Fetch all posts
   const fetchPosts = async () => {
     setIsLoadingPosts(true);
     try {
@@ -109,10 +118,12 @@ const Home = () => {
     }
   };
 
+  // Fetch posts on mount
   useEffect(() => {
     fetchPosts();
   }, []);
 
+  // Fetch all stories
   useEffect(() => {
     const fetchStories = async () => {
       setIsLoadingStories(true);
@@ -128,6 +139,7 @@ const Home = () => {
     fetchStories();
   }, []);
 
+  // Update story view count when a story is selected
   useEffect(() => {
     if (selectedStory && !viewCountUpdated) {
       const updateViewCount = async () => {
@@ -142,23 +154,27 @@ const Home = () => {
     }
   }, [selectedStory, viewCountUpdated]);
 
+  // Close story modal
   const closeModal = () => {
     setSelectedStory(null);
     setViewCountUpdated(false);
   };
 
+  // Open edit modal for a story
   const handleEditClick = (story) => {
     setSelectedStory(story);
     setEditedText(story.text);
     setShowEditStoryModal(true);
   };
 
+  // Handle image file change for story edit
   const handleImageChange = (e) => {
     if (e.target.files[0]) {
       setNewImage(e.target.files[0]);
     }
   };
 
+  // Update a story with new text/image
   const handleUpdateStory = async () => {
     try {
       const formData = new FormData();
@@ -188,6 +204,7 @@ const Home = () => {
     }
   };
 
+  // Close modal on Escape key
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === "Escape") closeModal();
@@ -196,6 +213,7 @@ const Home = () => {
     return () => document.removeEventListener("keydown", handleEscape);
   }, []);
 
+  // Show loading state if user is not loaded yet
   if (!user)
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -203,6 +221,7 @@ const Home = () => {
       </div>
     );
 
+  // Modal for editing a story
   const EditModal = () => (
     <div
       className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
@@ -214,6 +233,7 @@ const Home = () => {
         <h3 className="text-xl font-bold mb-4 text-gray-900">Edit Story</h3>
 
         <div className="space-y-4">
+          {/* Textarea for editing story text */}
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <textarea
               value={editedText}
@@ -225,6 +245,7 @@ const Home = () => {
             />
           </div>
 
+          {/* Image upload for story */}
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-200 rounded-md cursor-pointer hover:border-teal-400 transition-all">
               <div className="flex flex-col items-center text-gray-600">
@@ -243,6 +264,7 @@ const Home = () => {
                 aria-hidden="true"
               />
             </label>
+            {/* Show current image if exists */}
             {selectedStory?.mediaUrl && !newImage && (
               <div className="mt-2">
                 <img
@@ -255,6 +277,7 @@ const Home = () => {
             )}
           </div>
 
+          {/* Action buttons */}
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <div className="flex justify-end space-x-3">
               <button
@@ -280,6 +303,7 @@ const Home = () => {
 
   return (
     <div className="bg-gray-50">
+      {/* Header with user info */}
       <Header user={user} />
 
       <div className="min-h-screen ml-0 lg:ml-64 overflow-y-auto z-10">
@@ -292,6 +316,7 @@ const Home = () => {
             <div className="bg-white border border-gray-200 rounded-lg p-4 min-h-[200px]">
               <h2 className="text-lg font-bold mb-4 text-gray-900">Recent Stories</h2>
               {isLoadingStories ? (
+                // Loading skeleton for stories
                 <div
                   className="flex space-x-3 min-h-[120px]"
                   role="status"
@@ -307,6 +332,7 @@ const Home = () => {
                   ))}
                 </div>
               ) : (
+                // Stories list
                 <div className="flex space-x-3 overflow-x-auto min-h-[120px]">
                   {stories.length > 0 ? (
                     stories.map((story, index) => (
@@ -352,6 +378,7 @@ const Home = () => {
                   ) : (
                     <div className="text-gray-500 text-sm py-4">No stories available</div>
                   )}
+                  {/* Button to add a new story */}
                   <button
                     onClick={() => navigate("/add-story")}
                     className="w-28 h-48 bg-gray-200 rounded-lg border-2 border-dashed border-gray-200 flex items-center justify-center text-teal-600 hover:bg-gray-300 transition-all flex-shrink-0"
@@ -368,10 +395,12 @@ const Home = () => {
           <section aria-label="Community posts">
             <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6 min-h-[150px]">
               <h2 className="text-lg font-bold mb-4 text-gray-900">Community Posts</h2>
+              {/* Create new post */}
               <CreatePost userId={user.id} onPostCreated={(newPost) => setPosts([newPost, ...posts])} />
             </div>
             <div className="space-y-6" role="region" aria-live="polite">
               {isLoadingPosts ? (
+                // Loading skeleton for posts
                 <div className="space-y-6" role="status" aria-busy="true">
                   {[...Array(3)].map((_, i) => (
                     <div
@@ -382,6 +411,7 @@ const Home = () => {
                   ))}
                 </div>
               ) : posts.length > 0 ? (
+                // Render each post
                 posts.map((post) => (
                   <div key={post.id} className="bg-white border border-gray-200 rounded-lg p-4">
                     <PostCardWithReactions
@@ -477,6 +507,7 @@ const Home = () => {
                   </div>
                 </div>
 
+                {/* Edit and Delete buttons for story owner */}
                 {selectedStory.userId === user.id && (
                   <div className="flex gap-3">
                     <button
@@ -515,6 +546,7 @@ const Home = () => {
       {/* Edit Story Modal */}
       {showEditStoryModal && <EditModal />}
 
+      {/* Global styles for scroll and layout */}
       <style jsx global>{`
         html {
           scroll-behavior: smooth;
