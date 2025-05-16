@@ -1,20 +1,24 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+// List of available categories for user to select
 const categoriesList = ["Art", "Music", "Coding", "Business", "Fitness", "Cooking"];
 
+// CategorySelect component: lets user pick interests/categories
 const CategorySelect = () => {
   const navigate = useNavigate();
-  const [selected, setSelected] = useState([]);
+  const [selected, setSelected] = useState([]); // State for selected categories
 
+  // Toggle category selection
   const handleToggle = (category) => {
     setSelected((prev) =>
       prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]
     );
   };
 
+  // Submit selected categories to backend
   const handleSubmit = async () => {
-    const email = prompt("Enter your email to save categories"); // Or get from JWT
+    const email = prompt("Enter your email to save categories"); // Or get from JWT/localStorage
     try {
       const res = await fetch(`http://localhost:8080/api/auth/categories?email=${email}`, {
         method: "POST",
@@ -22,7 +26,7 @@ const CategorySelect = () => {
         body: JSON.stringify(selected),
       });
 
-      if (res.ok) navigate("/home");
+      if (res.ok) navigate("/home"); // Redirect on success
       else alert("Error saving categories");
     } catch (err) {
       alert("Failed to save categories");
@@ -30,6 +34,7 @@ const CategorySelect = () => {
   };
 
   return (
+    // Main container with category buttons and submit
     <div className="min-h-screen flex flex-col items-center bg-gray-50 p-6">
       <h1 className="text-2xl font-semibold text-indigo-600 mb-6">Choose Your Interests</h1>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
