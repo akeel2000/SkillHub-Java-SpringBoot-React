@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+// GroupHome component: displays group details, posts, and allows group management
 const GroupHome = () => {
   const { id } = useParams();
-  const [group, setGroup] = useState(null);
-  const [posts, setPosts] = useState([]);
-  const [newPost, setNewPost] = useState("");
-  const [isEditing, setIsEditing] = useState(false);
-  const [editName, setEditName] = useState("");
-  const [editDescription, setEditDescription] = useState("");
+  const [group, setGroup] = useState(null); // Group details
+  const [posts, setPosts] = useState([]); // Group discussion posts
+  const [newPost, setNewPost] = useState(""); // New post content
+  const [isEditing, setIsEditing] = useState(false); // Edit mode for group details
+  const [editName, setEditName] = useState(""); // Edited group name
+  const [editDescription, setEditDescription] = useState(""); // Edited group description
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId");
   const navigate = useNavigate();
 
-  // 👉 Fetch group details and posts
+  // Fetch group details and posts from backend
   const fetchGroupDetails = async () => {
     try {
       const resGroup = await fetch(`http://localhost:8080/api/groups/${id}`, {
@@ -34,10 +35,12 @@ const GroupHome = () => {
     }
   };
 
+  // Load group details on mount or when id/token changes
   useEffect(() => {
     fetchGroupDetails();
   }, [id, token]);
 
+  // Add a new discussion post
   const handleAddPost = async () => {
     if (!newPost.trim()) {
       alert("Please enter some content!");
@@ -69,6 +72,7 @@ const GroupHome = () => {
     }
   };
 
+  // Join the group as a member
   const handleJoinGroup = async () => {
     try {
       const updatedGroup = {
@@ -96,6 +100,7 @@ const GroupHome = () => {
     }
   };
 
+  // Save edited group details
   const handleSaveEdit = async () => {
     try {
       const updatedGroup = {
@@ -116,7 +121,7 @@ const GroupHome = () => {
         setGroup(savedGroup);
         setIsEditing(false);
         alert("Group updated successfully!");
-        // 👉 Update posts and details again if needed
+        // Refresh group details and posts
         fetchGroupDetails();
       } else {
         alert("Failed to update group");
@@ -126,6 +131,8 @@ const GroupHome = () => {
       alert("Error updating group");
     }
   };
+
+  // Delete the group (only for creator)
   const handleDeleteGroup = async () => {
     if (window.confirm("Are you sure you want to delete this group?")) {
       try {
@@ -135,7 +142,7 @@ const GroupHome = () => {
         });
         if (res.ok) {
           alert("Group deleted successfully!");
-          navigate("/groups"); // ✅ Go to /groups after delete
+          navigate("/groups"); // Redirect to groups page after delete
         } else {
           alert("Failed to delete group");
         }
@@ -145,8 +152,8 @@ const GroupHome = () => {
       }
     }
   };
-  
 
+  // Show loading state while fetching group
   if (!group) return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-6 text-cyan-100">
       Loading Group...
@@ -157,7 +164,7 @@ const GroupHome = () => {
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-6 text-cyan-100">
       <div className="max-w-5xl mx-auto">
 
-        {/* Group Details */}
+        {/* Group Details (edit mode or view mode) */}
         <div className="mb-8">
           {isEditing ? (
             <>
@@ -196,7 +203,7 @@ const GroupHome = () => {
           )}
         </div>
 
-        {/* Join Button */}
+        {/* Join Button (if not a member) */}
         {!group.memberIds.includes(userId) && (
           <div className="flex justify-center mb-6">
             <button
@@ -208,7 +215,7 @@ const GroupHome = () => {
           </div>
         )}
 
-        {/* Pinned Resources */}
+        {/* Pinned Resources Section */}
         <div className="mb-10">
           <h3 className="text-2xl font-bold mb-4">📌 Pinned Resources</h3>
           {group.pinnedResources.length === 0 ? (
@@ -226,11 +233,11 @@ const GroupHome = () => {
           )}
         </div>
 
-        {/* Discussion Posts */}
+        {/* Group Discussion Posts */}
         <div className="mb-8">
           <h3 className="text-2xl font-bold mb-4">💬 Group Discussions</h3>
 
-          {/* New Post */}
+          {/* New Post Input */}
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <input
               type="text"
@@ -267,7 +274,7 @@ const GroupHome = () => {
           )}
         </div>
 
-        {/* Edit + Delete Buttons */}
+        {/* Edit and Delete Buttons (only for group creator) */}
         {group.creatorId === userId && (
           <div className="flex justify-center gap-4 mt-8">
             <button
