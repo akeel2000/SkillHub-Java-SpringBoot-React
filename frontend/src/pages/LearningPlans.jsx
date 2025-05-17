@@ -26,11 +26,22 @@ const LearningPlans = () => {
       const res = await fetch(`http://localhost:8080/api/plans/user/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!res.ok) throw new Error(await res.text() || "Failed to load plans");
-      const data = await res.json();
-      setPlans(Array.isArray(data) ? data : []);
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || `Failed to load plans (Status: ${res.status})`);
+      }
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const data = await res.json();
+        setPlans(Array.isArray(data) ? data : []);
+      } else {
+        const text = await res.text();
+        console.warn("Non-JSON response received:", text);
+        setPlans([]);
+      }
     } catch (err) {
       setError(err.message || "Error loading plans");
+      console.error("Fetch plans error:", err);
     } finally {
       setIsLoading(false);
     }
