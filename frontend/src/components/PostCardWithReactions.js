@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 
+// Component to display a post card with reactions, comments, and media
 const PostCardWithReactions = ({ post, userId, userName, token, onUpdate, showControls, onEdit, onDelete }) => {
   const [comment, setComment] = useState("");
   const [isCommenting, setIsCommenting] = useState(false);
@@ -7,6 +8,7 @@ const PostCardWithReactions = ({ post, userId, userName, token, onUpdate, showCo
   const [showComments, setShowComments] = useState(false);
   const reactionOptions = ["❤️", "👍", "😂", "😮", "😢", "😡"];
 
+  // Handle reaction submission to the server
   const handleReact = async (emoji) => {
     try {
       await fetch(`http://localhost:8080/api/posts/${post.id}/react?userId=${userId}&reaction=${emoji}`, {
@@ -21,6 +23,7 @@ const PostCardWithReactions = ({ post, userId, userName, token, onUpdate, showCo
     }
   };
 
+  // Handle comment submission to the server
   const handleComment = async () => {
     if (!comment.trim()) {
       setCommentError("Comment cannot be empty");
@@ -52,6 +55,7 @@ const PostCardWithReactions = ({ post, userId, userName, token, onUpdate, showCo
     }
   };
 
+  // Summarize reactions by counting each emoji
   const getReactionSummary = () => {
     const counts = {};
     if (!post.reactions) return counts;
@@ -64,6 +68,7 @@ const PostCardWithReactions = ({ post, userId, userName, token, onUpdate, showCo
 
   const reactionSummary = getReactionSummary();
 
+  // Render media (images or videos) for the post
   const renderMedia = () => {
     return post.mediaUrls?.map((url, index) => {
       const type = post.mediaTypes?.[index] || "image";
@@ -126,6 +131,7 @@ const PostCardWithReactions = ({ post, userId, userName, token, onUpdate, showCo
         <span className="text-gray-900 text-base font-semibold">{userName}</span>
       </div>
 
+      {/* Post Media */}
       {post.mediaUrls?.length > 0 && (
         <div
           className="bg-white border border-gray-200 rounded-lg p-4 mb-4"
@@ -136,6 +142,7 @@ const PostCardWithReactions = ({ post, userId, userName, token, onUpdate, showCo
         </div>
       )}
 
+      {/* Post Content */}
       {post.content && (
         <div
           className="bg-white border border-gray-200 rounded-lg p-4 mb-4"
@@ -148,6 +155,7 @@ const PostCardWithReactions = ({ post, userId, userName, token, onUpdate, showCo
         </div>
       )}
 
+      {/* Reactions Section */}
       <div
         className="bg-white border border-gray-200 rounded-lg p-4 mb-4"
         role="region"
@@ -185,6 +193,7 @@ const PostCardWithReactions = ({ post, userId, userName, token, onUpdate, showCo
         </div>
       </div>
 
+      {/* Comments Section */}
       <div
         className="bg-white border border-gray-200 rounded-lg p-4"
         role="region"
@@ -217,6 +226,7 @@ const PostCardWithReactions = ({ post, userId, userName, token, onUpdate, showCo
           </div>
         )}
 
+        {/* Comment Input and Controls */}
         <div className="pt-3 border-t border-gray-200 space-y-4">
           <div className="flex gap-3">
             <div className="flex-1 relative">
@@ -249,6 +259,7 @@ const PostCardWithReactions = ({ post, userId, userName, token, onUpdate, showCo
             </button>
           </div>
 
+          {/* Edit/Delete Controls */}
           {showControls && (
             <div className="flex justify-end gap-3">
               <button
@@ -268,6 +279,7 @@ const PostCardWithReactions = ({ post, userId, userName, token, onUpdate, showCo
             </div>
           )}
 
+          {/* Post Timestamp */}
           <p className="text-xs text-gray-500 font-mono mt-2">
             {new Date(post.createdAt).toLocaleString("en-US", {
               month: "short",
@@ -279,6 +291,7 @@ const PostCardWithReactions = ({ post, userId, userName, token, onUpdate, showCo
         </div>
       </div>
 
+      {/* Animation for Input Error */}
       <style jsx global>{`
         @keyframes shake {
           0%, 100% { transform: translateX(0); }
