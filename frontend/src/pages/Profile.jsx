@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+// Profile component displays the user's profile, handles logout, and profile actions
 const Profile = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null); // State for user data
   const email = localStorage.getItem("userEmail");
   const token = localStorage.getItem("token");
 
+  // Handle user logout, clear local storage and redirect to login
   const handleLogout = async () => {
     try {
       await fetch("http://localhost:8080/api/auth/logout", {
@@ -23,11 +25,13 @@ const Profile = () => {
   };
 
   useEffect(() => {
+    // Redirect to login if not authenticated
     if (!email || !token) {
       navigate("/login");
       return;
     }
 
+    // Fetch user profile data from backend
     const fetchUser = async () => {
       try {
         const res = await fetch(
@@ -48,6 +52,7 @@ const Profile = () => {
     fetchUser();
   }, [email, token, navigate]);
 
+  // Show loading state while fetching user data
   if (!user)
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
@@ -58,6 +63,7 @@ const Profile = () => {
     );
 
   return (
+    // Main profile background and floating elements
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 relative overflow-hidden">
       {/* Floating Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
