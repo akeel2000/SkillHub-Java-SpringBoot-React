@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
+// Login component handles user authentication and redirects
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -8,6 +9,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [isFormActive, setIsFormActive] = useState(true);
 
+  // Reset form state when navigating to /login
   useEffect(() => {
     if (location.pathname === "/login") {
       if (location.state?.email) {
@@ -22,6 +24,7 @@ const Login = () => {
     }
   }, [location]);
 
+  // Handle login form submission
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!isFormActive || window.location.pathname !== "/login") return;
@@ -46,10 +49,12 @@ const Login = () => {
     }
   };
 
+  // Redirect to Google OAuth login
   const handleOAuthLogin = () => {
     window.location.href = "http://localhost:8080/oauth2/authorization/google";
   };
 
+  // Redirect to signup page and clear local storage
   const handleSignupRedirect = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userEmail");
@@ -58,8 +63,9 @@ const Login = () => {
   };
 
   return (
+    // Main login background and animated elements
     <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 overflow-hidden">
-      {/* Animated Background */}
+      {/* Animated Background Circles */}
       <div className="absolute inset-0 overflow-hidden">
         {[...Array(8)].map((_, i) => (
           <div
@@ -80,12 +86,14 @@ const Login = () => {
         onSubmit={handleLogin} 
         className="relative z-10 bg-gradient-to-br from-purple-800/50 to-blue-800/50 p-8 rounded-3xl shadow-2xl backdrop-blur-xl border border-cyan-300/20 w-full max-w-md space-y-6 animate-fadeInUp"
       >
+        {/* Title */}
         <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 text-center mb-6">
           Welcome Back
           <div className="absolute inset-0 -z-10 blur-2xl opacity-20 bg-gradient-to-r from-cyan-400 to-blue-500" />
         </h2>
 
         <div className="space-y-4">
+          {/* Email Input */}
           <div className="relative group">
             <input
               type="email"
@@ -98,6 +106,7 @@ const Login = () => {
             <div className="absolute inset-0 -z-10 rounded-xl bg-gradient-to-r from-cyan-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
 
+          {/* Password Input */}
           <div className="relative group">
             <input
               type="password"
@@ -111,6 +120,7 @@ const Login = () => {
           </div>
         </div>
 
+        {/* Sign In Button */}
         <button 
           type="submit" 
           className="w-full bg-gradient-to-br from-cyan-500 to-blue-600 text-white font-bold py-3 rounded-xl shadow-2xl hover:shadow-3xl transform transition-all duration-300 hover:-translate-y-1 hover:scale-105 active:scale-95"
@@ -118,6 +128,7 @@ const Login = () => {
           Sign In
         </button>
 
+        {/* Divider */}
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-cyan-300/20" />
@@ -127,6 +138,7 @@ const Login = () => {
           </div>
         </div>
 
+        {/* Google OAuth Button */}
         <button
           type="button"
           onClick={handleOAuthLogin}
@@ -140,6 +152,7 @@ const Login = () => {
           </span>
         </button>
 
+        {/* Signup Redirect */}
         <p className="text-center text-cyan-300/80">
           Don’t have an account?{" "}
           <button 
@@ -151,6 +164,7 @@ const Login = () => {
         </p>
       </form>
 
+      {/* Animation styles for background and form */}
       <style jsx global>{`
         @keyframes float {
           0%, 100% { transform: translateY(0) rotate(0deg); }

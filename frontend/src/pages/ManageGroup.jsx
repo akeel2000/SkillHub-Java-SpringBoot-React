@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
+// ManageGroup component allows group admins to manage resources and invite members
 const ManageGroup = () => {
-  const { id } = useParams(); // groupId
-  const [group, setGroup] = useState(null);
-  const [inviteEmail, setInviteEmail] = useState("");
-  const [newResource, setNewResource] = useState("");
+  const { id } = useParams(); // groupId from URL
+  const [group, setGroup] = useState(null); // State for group data
+  const [inviteEmail, setInviteEmail] = useState(""); // State for invite email input
+  const [newResource, setNewResource] = useState(""); // State for new resource input
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
+  // Fetch group details on mount or when id/token changes
   useEffect(() => {
     const fetchGroup = async () => {
       try {
@@ -24,6 +26,7 @@ const ManageGroup = () => {
     fetchGroup();
   }, [id, token]);
 
+  // Add a new resource to the pinned resources list
   const handleAddResource = async () => {
     if (!newResource.trim()) return;
     const updatedGroup = {
@@ -34,6 +37,7 @@ const ManageGroup = () => {
     setNewResource("");
   };
 
+  // Remove a resource from the pinned resources list
   const handleRemoveResource = async (resToRemove) => {
     const updatedGroup = {
       ...group,
@@ -42,6 +46,7 @@ const ManageGroup = () => {
     await saveGroup(updatedGroup);
   };
 
+  // Save updated group data to backend
   const saveGroup = async (updatedGroup) => {
     try {
       const res = await fetch(`http://localhost:8080/api/groups/${id}`, {
@@ -64,11 +69,13 @@ const ManageGroup = () => {
     }
   };
 
+  // Placeholder for invite functionality
   const handleInvite = async () => {
     alert("Invite functionality coming soon! (Bonus part 🔥)");
     // Later you can implement GroupInvite logic based on email/userId!
   };
 
+  // Show loading state while fetching group data
   if (!group) return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-6 text-cyan-100">
       Loading Group...
@@ -76,6 +83,7 @@ const ManageGroup = () => {
   );
 
   return (
+    // Main group management UI
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-6 text-cyan-100">
       <div className="max-w-5xl mx-auto">
         {/* Group Title */}
@@ -85,7 +93,7 @@ const ManageGroup = () => {
         <div className="mb-10">
           <h3 className="text-2xl font-bold mb-4">📌 Pinned Resources</h3>
 
-          {/* Add new resource */}
+          {/* Add new resource input */}
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <input
               type="text"
@@ -102,7 +110,7 @@ const ManageGroup = () => {
             </button>
           </div>
 
-          {/* Existing resources */}
+          {/* List of existing pinned resources */}
           {group.pinnedResources.length === 0 ? (
             <p className="text-cyan-300">No pinned resources yet.</p>
           ) : (
@@ -145,7 +153,7 @@ const ManageGroup = () => {
           </div>
         </div>
 
-        {/* Back to Group */}
+        {/* Back to Group button */}
         <div className="flex justify-center mt-10">
           <button
             onClick={() => navigate(`/group/${id}`)}
