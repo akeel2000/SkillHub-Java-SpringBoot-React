@@ -41,7 +41,6 @@ const StudyGroups = () => {
 
         {/* Groups List */}
         {groups.length === 0 ? (
-          // Show message if no groups are available
           <p className="text-center text-cyan-300 mt-20">
             No groups available yet. Create one now!
           </p>
@@ -52,7 +51,7 @@ const StudyGroups = () => {
               <div
                 key={group.id}
                 className="bg-purple-800/40 p-6 rounded-2xl shadow-xl border border-cyan-300/10 hover:border-cyan-400/30 hover:scale-105 transform transition-all cursor-pointer"
-                onClick={() => navigate(`/group/${group.id}`)} // Navigate to group details page
+                onClick={() => navigate(`/group/${group.id}`)}
               >
                 <h3 className="text-xl font-bold mb-2">{group.name}</h3>
                 <p className="text-cyan-300 mb-4 line-clamp-2">{group.description}</p>
